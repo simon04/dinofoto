@@ -53,12 +53,12 @@ async function onLogin() {
 .dd-user {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--spacing-25);
   white-space: nowrap;
 }
 .dd-user a {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--spacing-25);
 }
 </style>
