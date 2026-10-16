@@ -1,6 +1,9 @@
 import { createGlobalState, useLocalStorage } from "@vueuse/core";
 import { computed, ref, shallowRef } from "vue";
 import { findBySha1 } from "./commons";
+import { readExif } from "./exif";
+import { language } from "./i18n";
+import { emptyMeta, initialDefaults, type Defaults, type Meta } from "./meta";
 import { pool } from "./pool";
 import { fileKey, scanDirectory, sha1 } from "./scan";
 
@@ -33,6 +36,13 @@ export const usePhotos = createGlobalState(() => {
   const scanning = ref(false);
   /** SHA-1 by path, size and modification time, to skip re-hashing */
   const hashes = useLocalStorage<Record<string, string>>("dinofoto.sha1", {});
+  /** metadata by SHA-1, kept across reloads and directories */
+  const meta = useLocalStorage<Record<string, Meta>>("dinofoto.meta", {});
+  const defaults = useLocalStorage<Defaults>(
+    "dinofoto.defaults",
+    initialDefaults(language.value),
+    { mergeDefaults: true },
+  );
   let generation = 0;
 
   async function open() {
@@ -75,11 +85,28 @@ export const usePhotos = createGlobalState(() => {
       }
       seen.set(photo.sha1, photo);
       photo.existing = await findBySha1(photo.sha1);
+      if (!photo.existing) await initMeta(photo, photo.sha1);
       photo.status = photo.existing ? "exists" : "new";
     } catch (e) {
       photo.status = "error";
       photo.error = String(e);
     }
+  }
+
+  /** Metadata from the file name and EXIF, unless edited before. */
+  async function initMeta(photo: Photo, sha1: string) {
+    if (meta.value[sha1]) return;
+    const name = photo.path.split("/").pop()!;
+    meta.value[sha1] = {
+      ...emptyMeta(),
+      title: name.slice(0, name.lastIndexOf(".")).replace(/_/g, " ").trim(),
+      ...(await readExif(photo.file)),
+    };
+  }
+
+  /** Metadata of a new picture (created on demand). */
+  function metaOf(photo: Photo): Meta {
+    return (meta.value[photo.sha1!] ??= emptyMeta());
   }
 
   const counts = computed(() => {
@@ -100,5 +127,15 @@ export const usePhotos = createGlobalState(() => {
     photos.value.filter((photo) => photo.status === "new"),
   );
 
-  return { directory, photos, scanning, counts, newPhotos, open };
+  return {
+    directory,
+    photos,
+    scanning,
+    counts,
+    newPhotos,
+    meta,
+    defaults,
+    metaOf,
+    open,
+  };
 });

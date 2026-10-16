@@ -14,6 +14,15 @@ The workflow is split into steps (tabs), so that 100+ photos can be prepared and
 - Hashes are cached in localStorage by path, size and modification time, so reopening a directory is instant
 - Live progress and counts (new, on Commons, duplicates, errors); thumbnails from the embedded EXIF thumbnail (no decoding of the full image), created lazily when scrolled into view
 
+### 2. Describe
+
+- All new pictures in one spreadsheet-like table: file name (the extension is kept), description, date, categories, latitude, longitude, camera heading; optionally author, source and license per file
+- Prefilled from the file name and EXIF: date taken (`DateTimeOriginal`), GPS position and camera heading ([exifr](https://github.com/MikeKovarik/exifr), reads only the metadata, not the whole file)
+- Defaults for all files: description language, description, categories (added to every file), author (empty: your user page), source (`{{own}}`) and license (`{{self|cc-by-sa-4.0}}` or other presets, or any license template)
+- Enter / Shift+Enter moves to the same column in the next / previous row; “fill down” per column copies values into the empty cells below
+- Select which files to upload (checkbox per row, select all); click a thumbnail for a large preview
+- Everything is saved in localStorage, keyed by SHA-1: metadata survives reloads, reopening the directory, and even renaming or moving files
+
 ## Development
 
 ```sh

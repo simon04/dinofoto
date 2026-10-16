@@ -16,6 +16,13 @@
       <cdx-tab name="files" :label="t('step-files')">
         <FilesStep />
       </cdx-tab>
+      <cdx-tab
+        name="describe"
+        :label="t('step-describe', newPhotos.length)"
+        :disabled="!newPhotos.length"
+      >
+        <DescribeStep />
+      </cdx-tab>
     </cdx-tabs>
   </main>
   <cdx-toast-container />
@@ -30,6 +37,10 @@ import { isRTL, language, t } from "./i18n";
 import LanguageSelector from "./components/LanguageSelector.vue";
 import UserMenu from "./components/UserMenu.vue";
 import FilesStep from "./components/FilesStep.vue";
+import DescribeStep from "./components/DescribeStep.vue";
+import { usePhotos } from "./store";
+
+const { newPhotos } = usePhotos();
 
 const step = ref("files");
 

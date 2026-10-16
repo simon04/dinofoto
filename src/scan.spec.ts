@@ -41,6 +41,6 @@ describe("pool", () => {
       running--;
     });
     expect(max).toBe(2);
-    expect(done.sort()).toEqual([1, 2, 3, 4, 5]);
+    expect(done.sort((a, b) => a - b)).toEqual([1, 2, 3, 4, 5]);
   });
 });
