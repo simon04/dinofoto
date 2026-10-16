@@ -31,20 +31,31 @@ export async function findBySha1(sha1: string): Promise<string | undefined> {
   return json.query.allimages[0]?.name;
 }
 
-/** Titles (without `File:`, normalized) of these files that exist on the wiki. */
-export async function existingFiles(
+/**
+ * Of these files (titles without `File:`, normalized): those that exist on
+ * the wiki, and those protected against creation.
+ */
+export async function fileStatus(
   titles: string[],
   wiki: Wiki = COMMONS,
-): Promise<Set<string>> {
+): Promise<{ existing: Set<string>; protected: Set<string> }> {
   const existing = new Set<string>();
+  const protectedTitles = new Set<string>();
   for (let i = 0; i < titles.length; i += 50) {
     const json = await apiGet<{
       query: {
-        pages: { title: string; missing?: boolean; invalid?: boolean }[];
+        pages: {
+          title: string;
+          missing?: boolean;
+          invalid?: boolean;
+          protection?: { type: string }[];
+        }[];
       };
     }>(
       {
         action: "query",
+        prop: "info",
+        inprop: "protection",
         titles: titles
           .slice(i, i + 50)
           .map((title) => `File:${title}`)
@@ -52,11 +63,40 @@ export async function existingFiles(
       },
       wiki,
     );
-    for (const page of json.query.pages)
-      if (!page.missing && !page.invalid)
-        existing.add(page.title.replace(/^File:/, ""));
+    for (const page of json.query.pages) {
+      const title = page.title.replace(/^File:/, "");
+      if (!page.missing && !page.invalid) existing.add(title);
+      if (page.protection?.some((p) => ["create", "upload"].includes(p.type)))
+        protectedTitles.add(title);
+    }
   }
-  return existing;
+  return { existing, protected: protectedTitles };
+}
+
+/**
+ * Reason why the title blacklist forbids uploading a file of this name
+ * (`action=titleblacklist`), as text; `undefined` if allowed.
+ */
+export async function titleBlacklist(
+  title: string,
+  wiki: Wiki = COMMONS,
+): Promise<string | undefined> {
+  const json = await apiGet<{
+    titleblacklist: { result: string; reason?: string; message?: string };
+  }>(
+    {
+      action: "titleblacklist",
+      tbaction: "upload",
+      tbtitle: `File:${title}`,
+    },
+    wiki,
+  ).catch(() => undefined);
+  const result = json?.titleblacklist;
+  if (!result || result.result === "ok") return undefined;
+  return result.reason
+    ? (new DOMParser().parseFromString(result.reason, "text/html").body
+        .textContent ?? result.message)
+    : result.message;
 }
 
 /** HTML of wikitext rendered as a file description page. */

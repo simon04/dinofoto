@@ -91,7 +91,10 @@ export const MAX_SIZE = 5 * 1024 * 1024 * 1024;
 export type Problem =
   | "title-empty"
   | "title-chars"
+  | "title-short"
   | "title-long"
+  | "title-protected"
+  | "title-blacklisted"
   | "title-extension"
   | "title-duplicate"
   | "title-exists"
@@ -112,7 +115,10 @@ export type Problem =
 export const ERRORS = new Set<Problem>([
   "title-empty",
   "title-chars",
+  "title-short",
   "title-long",
+  "title-protected",
+  "title-blacklisted",
   "title-duplicate",
   "title-exists",
   "file-large",
@@ -123,7 +129,14 @@ export const ERRORS = new Set<Problem>([
 
 /** Names given by cameras and phones, discouraged on Commons. */
 const CAMERA_NAME =
-  /^(IMG|DSC|DSCN|DSCF|DSC_|PICT|P\d{3}|CIMG|SAM|IMAG|GOPR|DJI|PXL|MVIMG|Photo)[ _-]?[\d_ -]+$/i;
+  /^(IMG|DSC|DSCN|DSCF|DSC_|DCP|PICT|P\d{3}|PANA|CIMG|SAM|SANY|HPIM|KIF|MVC|FUJI|EX|IMAG|GOPR|DJI|PXL|MVIMG|Photo|Image|Bild|Foto|Screenshot)[ _-]?[\d_ -]+$/i;
+
+/**
+ * Characters UploadWizard rejects in file names: BiDi and other invisible
+ * formatting characters, soft hyphens, private use characters.
+ */
+const INVISIBLE =
+  /[\u00ad\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff\ue000-\uf8ff]/;
 
 /** Problems of one picture's metadata (without checks against others). */
 export function problems(
@@ -140,7 +153,16 @@ export function problems(
   // eslint-disable-next-line no-control-regex
   if (/[#<>[\]|{}/:\\]|~{3}|[\x00-\x1f\x7f]/.test(name))
     result.push("title-chars");
-  if (new TextEncoder().encode(fileTitle(meta, path)).length > 240)
+  if (
+    INVISIBLE.test(name) ||
+    name.includes("''") ||
+    // thumbnail names, e.g. 120px-Foo.jpg
+    /^\d+px-/i.test(name)
+  )
+    result.push("title-chars");
+  if (name && name.length < 5) result.push("title-short");
+  // UploadWizard's limit, leaving room in the 255-byte page title
+  if (new TextEncoder().encode(fileTitle(meta, path)).length > 235)
     result.push("title-long");
   if (/\.(jpe?g|png|gif|tiff?|webp|svg)$/i.test(name))
     result.push("title-extension");

@@ -35,9 +35,6 @@ Out of scope (Commons itself): search (●3), map search, MediaViewer speed (●
 
 ## Checks
 
-- **Title blacklist** (S, UploadWizard): `action=titleblacklist&tbaction=upload&tbtitle=File:…` per name in the review.
-- **More title rules** (S, UploadWizard `QuickTitleChecker`): BiDi and control characters, soft hyphens, private-use characters, `''`, `123px-` prefixes, duplicated extensions, 5–235 bytes; more camera prefixes (PANA, …).
-- **Protected titles** (S, UploadWizard): `inprop=protection` in the existence check.
 - **No categories** (S, UploadWizard): add `{{Uncategorized}}`-style wikitext or ask for confirmation.
 - **Minimum lengths** (S, UploadWizard): captions and descriptions of at least 5 characters.
 
@@ -79,4 +76,4 @@ Out of scope (Commons itself): search (●3), map search, MediaViewer speed (●
 
 ## Done
 
-Chunked and asynchronous upload, stashing first to show server warnings (incl. deleted duplicates). Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.
+Title blacklist, protected titles and UploadWizard’s title rules. Chunked and asynchronous upload, stashing first to show server warnings (incl. deleted duplicates). Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.

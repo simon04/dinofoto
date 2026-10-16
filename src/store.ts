@@ -1,7 +1,7 @@
 import { createGlobalState, useLocalStorage } from "@vueuse/core";
 import { computed, ref, shallowRef, watch } from "vue";
 import { useAuth } from "./auth";
-import { existingFiles, findBySha1 } from "./commons";
+import { fileStatus, findBySha1, titleBlacklist } from "./commons";
 import type { Table } from "./csv";
 import { missingCategories } from "./categories";
 import { readExif } from "./exif";
@@ -56,6 +56,8 @@ export interface Item {
   meta: Meta;
   /** categories that do not exist on Commons */
   unknownCategories: string[];
+  /** parameters of problem messages, e.g. the blacklist reason */
+  details: Partial<Record<Problem, string>>;
   /** Commons title without `File:` */
   title: string;
   text: string;
@@ -176,18 +178,35 @@ export const usePhotos = createGlobalState(() => {
   const checkingTitles = ref(false);
   /** categories of selected files that do not exist on Commons */
   const unknownCategories = ref(new Set<string>());
+  /** normalized titles protected against creation */
+  const protectedTitles = ref(new Set<string>());
+  /** title blacklist reasons by normalized title, cached per wiki */
+  const blacklisted = ref(new Map<string, string>());
+  const blacklistChecked = new Set<string>();
   async function checkTitles() {
     checkingTitles.value = true;
     try {
-      const [titles, categories] = await Promise.all([
-        existingFiles(
-          items.value.map((item) => item.title),
-          target.value,
-        ),
+      const titles = items.value.map((item) => item.title);
+      const [status, categories] = await Promise.all([
+        fileStatus(titles, target.value),
         missingCategories(items.value.flatMap(categoriesOf)),
+        pool(
+          titles.filter(
+            (t) => !blacklistChecked.has(`${target.value.id}:${t}`),
+          ),
+          4,
+          async (title) => {
+            const reason = await titleBlacklist(title, target.value);
+            blacklistChecked.add(`${target.value.id}:${title}`);
+            if (reason) blacklisted.value.set(title, reason);
+            else blacklisted.value.delete(title);
+          },
+        ),
       ]);
-      existingTitles.value = titles;
+      existingTitles.value = status.existing;
+      protectedTitles.value = status.protected;
       unknownCategories.value = categories;
+      blacklisted.value = new Map(blacklisted.value);
     } finally {
       checkingTitles.value = false;
     }
@@ -196,6 +215,8 @@ export const usePhotos = createGlobalState(() => {
   // names taken on one wiki may be free on another
   watch(target, () => {
     existingTitles.value = new Set();
+    protectedTitles.value = new Set();
+    blacklisted.value = new Map();
     if (items.value.length) checkTitles().catch(console.warn);
   });
 
@@ -218,6 +239,7 @@ export const usePhotos = createGlobalState(() => {
         text: pageText(m, defaults.value, username.value),
         problems: problems(m, photo.path, defaults.value, username.value),
         unknownCategories: [] as string[],
+        details: {} as Partial<Record<Problem, string>>,
         invalid: false,
       };
     });
@@ -230,8 +252,17 @@ export const usePhotos = createGlobalState(() => {
       item.unknownCategories = categoriesOf(item).filter((c) =>
         unknownCategories.value.has(c),
       );
-      if (item.unknownCategories.length)
+      if (item.unknownCategories.length) {
         item.problems.push("categories-unknown");
+        item.details["categories-unknown"] = item.unknownCategories.join(", ");
+      }
+      if (protectedTitles.value.has(item.title))
+        item.problems.push("title-protected");
+      const reason = blacklisted.value.get(item.title);
+      if (reason) {
+        item.problems.push("title-blacklisted");
+        item.details["title-blacklisted"] = reason;
+      }
       item.invalid = item.problems.some((p) => ERRORS.has(p));
     }
     return all;

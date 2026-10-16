@@ -101,3 +101,18 @@ describe("splitCategories", () => {
     ]);
   });
 });
+
+describe("UploadWizard title rules", () => {
+  it.each([
+    ["120px-Foo", "title-chars"],
+    ["Foo‎Bar", "title-chars"],
+    ["It''s", "title-chars"],
+    ["Abc", "title-short"],
+    ["x".repeat(240), "title-long"],
+    ["PANA 1234", "title-camera"],
+  ])("%s → %s", (title, problem) => {
+    expect(problems({ ...meta, title }, "a.jpg", defaults, "Y")).toContain(
+      problem,
+    );
+  });
+});

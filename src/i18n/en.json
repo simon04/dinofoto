@@ -69,8 +69,8 @@
   "review-checking": "Checking…",
   "review-rendered": "Rendered preview",
   "problem-title-empty": "The file name is empty.",
-  "problem-title-chars": "The file name must not contain # < > [ ] | { } / : \\ or ~~~.",
-  "problem-title-long": "The file name is longer than 240 bytes.",
+  "problem-title-chars": "The file name must not contain # < > [ ] | { } / : \\ ~~~, '', invisible characters or a 123px- prefix.",
+  "problem-title-long": "The file name is longer than 235 bytes.",
   "problem-title-extension": "The file name ends with a file extension; the original extension is added anyway.",
   "problem-title-duplicate": "Another selected file has the same name.",
   "problem-title-exists": "A file with this name already exists on Commons.",
@@ -164,5 +164,8 @@
   "warning-was-deleted": "A file with this name was deleted before.",
   "warning-badfilename": "The name was changed to $1.",
   "warning-bad-prefix": "Names given by cameras ($1) are discouraged.",
-  "warning-empty-file": "The file is empty."
+  "warning-empty-file": "The file is empty.",
+  "problem-title-short": "The file name is shorter than 5 characters.",
+  "problem-title-protected": "This file name is protected against uploads.",
+  "problem-title-blacklisted": "The file name is not allowed: $1"
 }

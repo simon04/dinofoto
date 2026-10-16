@@ -37,7 +37,7 @@ The workflow is split into four steps (tabs, each with the number of files, and 
 - Pattypan-style list of all selected files with the resulting file description page: `{{Information}}` (description wrapped in a language template, date, source, author), `{{Location}}` with camera heading, license section and categories
 - Rendered preview of the page (Action API `action=parse`), or the wikitext
 - Checks per file; errors skip the file, warnings don’t:
-  - errors: empty file name, forbidden characters (`# < > [ ] | { } / : \ ~~~`), longer than 240 bytes, same name as another selected file, name already taken on the target wiki (checked in batches of 50 when the step opens), missing license, author or source
+  - errors: empty file name, forbidden characters (`# < > [ ] | { } / : \ ~~~`, `''`, invisible BiDi/formatting and private-use characters, `123px-` prefixes, as in UploadWizard), shorter than 5 characters, longer than 235 bytes, blocked by the [title blacklist](https://commons.wikimedia.org/wiki/MediaWiki:Titleblacklist) (`action=titleblacklist`, with its reason), protected against creation, same name as another selected file, name already taken on the target wiki (checked in batches of 50 when the step opens), missing license, author or source
   - warnings: categories that do not exist on Commons (checked together with the file names), camera-generated names (`IMG_1234`, `DSC…`, `PXL…`), file extension in the name, missing description, date or categories, invalid coordinates
 - Counts of files ready, with errors and with warnings
 
