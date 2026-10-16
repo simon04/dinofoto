@@ -68,8 +68,7 @@ Out of scope (Commons itself): search (●3), map search, MediaViewer speed (●
 ## Campaigns
 
 - **UploadWizard campaigns** (M/L): load `Campaign:X` JSON (`?campaign=X`): defaults, `autoAdd` categories and wikitext, custom fields, restricted licenses, start/end, tracking category.
-- **URL parameters** (S, UploadWizard): prefill defaults (`categories`, `description`, `caption`, `lat`, `lon`, …) from the URL, e.g. for Wiki Loves Monuments lists.
 
 ## Done
 
-KML export and map of the uploaded batch. Photo of the row being edited. Labels of Wikidata items. Object location. Titles, descriptions and keyword categories from EXIF/IPTC/XMP. Title blacklist, protected titles and UploadWizard’s title rules. Chunked and asynchronous upload, stashing first to show server warnings (incl. deleted duplicates). Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.
+URL prefill. KML export and map of the uploaded batch. Photo of the row being edited. Labels of Wikidata items. Object location. Titles, descriptions and keyword categories from EXIF/IPTC/XMP. Title blacklist, protected titles and UploadWizard’s title rules. Chunked and asynchronous upload, stashing first to show server warnings (incl. deleted duplicates). Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.

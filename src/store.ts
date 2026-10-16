@@ -15,6 +15,7 @@ import {
   type Meta,
 } from "./meta";
 import { pool } from "./pool";
+import { prefillFromUrl } from "./prefill";
 import { fileKey, scanDirectory, sha1 } from "./scan";
 import {
   effectiveMeta,
@@ -82,6 +83,9 @@ export const usePhotos = createGlobalState(() => {
     initialDefaults(language.value),
     { mergeDefaults: true },
   );
+  // defaults and values for new files from the URL, e.g. ?categories=…
+  const prefill = prefillFromUrl(location.search);
+  Object.assign(defaults.value, prefill.defaults);
   let generation = 0;
 
   async function open() {
@@ -140,6 +144,12 @@ export const usePhotos = createGlobalState(() => {
     meta.value[sha1] = {
       ...emptyMeta(),
       ...exif,
+      // the URL may set values the photo lacks
+      ...Object.fromEntries(
+        Object.entries(prefill.meta).filter(
+          ([key]) => !exif[key as keyof typeof exif],
+        ),
+      ),
       // a title from the metadata, else the file name
       title:
         title || name.slice(0, name.lastIndexOf(".")).replace(/_/g, " ").trim(),
