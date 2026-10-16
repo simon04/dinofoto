@@ -21,6 +21,7 @@ The workflow is split into four steps (tabs, each with the number of files, and 
 - Defaults for all files: description language, description, categories (added to every file), author (empty: your user page), source (`{{own}}`) and license (`{{self|cc-by-sa-4.0}}` or other presets, or any license template)
 - Enter / Shift+Enter moves to the same column in the next / previous row; “fill down” per column copies values into the empty cells below
 - Select which files to upload (checkbox per row, select all); click a thumbnail for a large preview
+- **File name pattern** for the selected files, e.g. `Kraków – Market Square ({nn})`, with a preview: `{n}`/`{nn}`/`{nnn}` (number, zero-padded, from a chosen start), `{title}` (current name), `{file}` (original file name), `{folder}` (directory), `{date}` (day taken), `{description}` (description as plain text); can be undone
 - **Paste CSV**: a table from a spreadsheet (tab-separated) or CSV (comma or semicolon, RFC 4180 quoting); the header row names the columns (`file`, `title`, `description`, `date`, `categories`, `latitude`, `longitude`, `heading`, `author`, `source`, `license`, and aliases such as `path`, `lat`, `lon`); a `file` column matches rows to pictures by path or file name, otherwise rows are applied in table order; unknown columns and unmatched rows are reported
 - **Paste cells** copied from a spreadsheet into any cell: they fill the table from that cell to the right and downwards
 - **Copy table** (tab-separated, to paste into a spreadsheet, edit there and paste back) and **Download CSV**

@@ -30,6 +30,10 @@
         <cdx-toggle-switch v-model="moreColumns">
           {{ t("describe-more-columns") }}
         </cdx-toggle-switch>
+        <cdx-button @click="showPattern = true">
+          <cdx-icon :icon="cdxIconEdit" />
+          {{ t("pattern-title") }}
+        </cdx-button>
         <cdx-button @click="showImport = true">
           <cdx-icon :icon="cdxIconPaste" />
           {{ t("csv-import") }}
@@ -124,6 +128,8 @@
       </div>
     </template>
 
+    <PatternDialog v-model:open="showPattern" />
+
     <cdx-dialog
       v-model:open="showImport"
       :title="t('csv-import')"
@@ -178,6 +184,7 @@ import {
   cdxIconArrowDown,
   cdxIconCopy,
   cdxIconDownload,
+  cdxIconEdit,
   cdxIconPaste,
 } from "@wikimedia/codex-icons";
 import { readTable, writeTable, type Table } from "../csv";
@@ -188,6 +195,7 @@ import { extension } from "../scan";
 import { usePhotos, type Photo } from "../store";
 import { ownWorkAuthor } from "../wikitext";
 import PhotoThumb from "./PhotoThumb.vue";
+import PatternDialog from "./PatternDialog.vue";
 
 const { directory, newPhotos, defaults, metaOf, applyTable } = usePhotos();
 const toast = useToast();
@@ -237,6 +245,7 @@ function onKeydown(event: KeyboardEvent) {
   next.select();
 }
 
+const showPattern = ref(false);
 const showImport = ref(false);
 const importText = ref("");
 const exampleCsv =

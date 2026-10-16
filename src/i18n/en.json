@@ -104,5 +104,12 @@
   "wiki-commons": "Wikimedia Commons",
   "wiki-testcommons": "Test Commons (for trying out)",
   "wiki-testwiki": "Test Wikipedia (for trying out)",
-  "upload-test-notice": "Test mode: files are uploaded to $1, not to Commons. Use it to try out a batch; files there may be deleted at any time."
+  "upload-test-notice": "Test mode: files are uploaded to $1, not to Commons. Use it to try out a batch; files there may be deleted at any time.",
+  "pattern-title": "File name pattern",
+  "pattern": "Pattern",
+  "pattern-help": "Applied to the selected files in table order. Placeholders: number (zero-padded), current name, original file name, directory, day taken, description as text.",
+  "pattern-start": "First number",
+  "pattern-preview": "Preview",
+  "pattern-apply": "Rename {{PLURAL:$1|$1 file|$1 files}}",
+  "pattern-applied": "Renamed {{PLURAL:$1|$1 file|$1 files}}."
 }
