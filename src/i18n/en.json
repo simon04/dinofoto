@@ -145,5 +145,14 @@
   "upload-copy-gallery": "Copy gallery",
   "upload-copy-qs": "Copy QuickStatements",
   "upload-copied": "Copied a gallery of {{PLURAL:$1|$1 file|$1 files}}.",
-  "upload-copied-qs": "Copied QuickStatements for the structured data, e.g. to retry failed ones."
+  "upload-copied-qs": "Copied QuickStatements for the structured data, e.g. to retry failed ones.",
+  "preset-choose": "Load preset…",
+  "preset-save": "Save as preset",
+  "preset-delete": "Delete preset",
+  "preset-name": "Name",
+  "preset-help": "Saves these defaults (language, description, categories, author, source, license) in this browser.",
+  "preset-example": "e.g. Wiki Loves Monuments",
+  "preset-loaded": "Loaded preset “$1”.",
+  "preset-saved": "Saved preset “$1”.",
+  "preset-deleted": "Deleted preset “$1”."
 }

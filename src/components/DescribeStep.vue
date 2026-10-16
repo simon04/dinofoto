@@ -4,6 +4,7 @@
     <template v-else>
       <fieldset class="df-defaults">
         <legend>{{ t("defaults") }}</legend>
+        <PresetBar />
         <cdx-field>
           <template #label>{{ t("field-language") }}</template>
           <template #help-text>{{ t("field-language-help") }}</template>
@@ -275,6 +276,7 @@ import { ownWorkAuthor } from "../wikitext";
 import PhotoThumb from "./PhotoThumb.vue";
 import PatternDialog from "./PatternDialog.vue";
 import BulkEditDialog from "./BulkEditDialog.vue";
+import PresetBar from "./PresetBar.vue";
 
 const { directory, newPhotos, defaults, metaOf, applyTable } = usePhotos();
 const toast = useToast();
