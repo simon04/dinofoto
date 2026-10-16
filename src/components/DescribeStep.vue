@@ -38,6 +38,10 @@
         <cdx-toggle-switch v-model="moreColumns">
           {{ t("describe-more-columns") }}
         </cdx-toggle-switch>
+        <cdx-button @click="showBulk = true">
+          <cdx-icon :icon="cdxIconListBullet" />
+          {{ t("bulk-title") }}
+        </cdx-button>
         <cdx-button @click="showPattern = true">
           <cdx-icon :icon="cdxIconEdit" />
           {{ t("pattern-title") }}
@@ -191,6 +195,7 @@
     </datalist>
 
     <PatternDialog v-model:open="showPattern" />
+    <BulkEditDialog v-model:open="showBulk" @suggest="onBulkSuggest" />
 
     <cdx-dialog
       v-model:open="showImport"
@@ -247,6 +252,7 @@ import {
   cdxIconCopy,
   cdxIconDownload,
   cdxIconEdit,
+  cdxIconListBullet,
   cdxIconPaste,
 } from "@wikimedia/codex-icons";
 import { readTable, writeTable, type Table } from "../csv";
@@ -268,6 +274,7 @@ import { usePhotos, type Photo } from "../store";
 import { ownWorkAuthor } from "../wikitext";
 import PhotoThumb from "./PhotoThumb.vue";
 import PatternDialog from "./PatternDialog.vue";
+import BulkEditDialog from "./BulkEditDialog.vue";
 
 const { directory, newPhotos, defaults, metaOf, applyTable } = usePhotos();
 const toast = useToast();
@@ -352,6 +359,11 @@ function suggestFor(photo: Photo) {
 const { options: itemOptions, suggest: suggestItems } = useItemSuggestions();
 
 const showPattern = ref(false);
+const showBulk = ref(false);
+function onBulkSuggest(field: Field, value: string) {
+  if (field === "categories") suggest(value);
+  if (field === "depicts") suggestItems(value, defaults.value.language);
+}
 const showImport = ref(false);
 const importText = ref("");
 const exampleCsv =

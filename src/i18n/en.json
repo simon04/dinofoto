@@ -132,5 +132,13 @@
   "property-P4174": "Wikimedia username",
   "property-P2699": "URL",
   "describe-caption-from-description": "Fill empty captions from the descriptions",
-  "describe-captions-filled": "Filled {{PLURAL:$1|$1 caption|$1 captions}}."
+  "describe-captions-filled": "Filled {{PLURAL:$1|$1 caption|$1 captions}}.",
+  "bulk-title": "Edit selected",
+  "bulk-help": "Set a value for all files selected for upload, e.g. a category or a depicted item.",
+  "bulk-field": "Column",
+  "bulk-mode": "Existing values",
+  "bulk-mode-replace": "Replace",
+  "bulk-mode-append": "Append (categories and depicts separated by ;)",
+  "bulk-mode-empty": "Keep, fill only empty cells",
+  "bulk-apply": "Apply to {{PLURAL:$1|$1 file|$1 files}}"
 }
