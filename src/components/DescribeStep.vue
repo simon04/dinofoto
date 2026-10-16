@@ -36,6 +36,9 @@
 
       <div class="df-toolbar">
         <span>{{ t("describe-selected", selected, newPhotos.length) }}</span>
+        <cdx-toggle-switch v-model="showFocused">
+          {{ t("describe-show-photo") }}
+        </cdx-toggle-switch>
         <cdx-toggle-switch v-model="moreColumns">
           {{ t("describe-more-columns") }}
         </cdx-toggle-switch>
@@ -63,7 +66,7 @@
       <p class="df-hint">{{ t("describe-keys") }}</p>
 
       <div class="df-scroll">
-        <table class="df-table df-sheet">
+        <table class="df-table df-sheet" @focusin="onFocusIn">
           <thead>
             <tr>
               <th>
@@ -232,6 +235,11 @@
       />
     </cdx-dialog>
 
+    <figure v-if="showFocused && focusedUrl" class="df-focused">
+      <img :src="focusedUrl" alt="" />
+      <figcaption>{{ focused!.path }}</figcaption>
+    </figure>
+
     <cdx-dialog
       :open="!!preview"
       :title="preview?.path ?? ''"
@@ -246,7 +254,7 @@
 
 <script setup lang="ts">
 import { computed, ref, shallowRef } from "vue";
-import { useClipboard, useObjectUrl } from "@vueuse/core";
+import { useClipboard, useLocalStorage, useObjectUrl } from "@vueuse/core";
 import {
   CdxButton,
   CdxCheckbox,
@@ -432,6 +440,19 @@ function downloadCsv() {
   URL.revokeObjectURL(a.href);
 }
 
+/** large photo of the row being edited, beside the table */
+const showFocused = useLocalStorage("dinofoto.showFocused", true);
+const focused = shallowRef<Photo>();
+const focusedUrl = useObjectUrl(
+  computed(() => (showFocused.value ? focused.value?.file : undefined)),
+);
+function onFocusIn(event: FocusEvent) {
+  const row = (event.target as HTMLElement).closest("tr");
+  const index = row ? [...row.parentElement!.children].indexOf(row) : -1;
+  if (row?.parentElement?.tagName === "TBODY")
+    focused.value = newPhotos.value[index];
+}
+
 const preview = shallowRef<Photo>();
 const previewUrl = useObjectUrl(computed(() => preview.value?.file));
 </script>
@@ -544,6 +565,32 @@ const previewUrl = useObjectUrl(computed(() => preview.value?.file));
   font-family: var(--font-family-monospace);
   font-size: var(--font-size-small);
   white-space: pre;
+}
+.df-focused {
+  position: fixed;
+  inset-inline-end: var(--spacing-150);
+  bottom: var(--size-400);
+  z-index: 2;
+  width: var(--size-1600);
+  margin: 0;
+  padding: var(--spacing-50);
+  background: var(--background-color-base);
+  border: var(--border-width-base) solid var(--border-color-subtle);
+  border-radius: var(--border-radius-base);
+  box-shadow: var(--box-shadow-drop-medium);
+  pointer-events: none;
+}
+.df-focused img {
+  display: block;
+  max-width: 100%;
+  max-height: 30vh;
+  margin: auto;
+}
+.df-focused figcaption {
+  margin-top: var(--spacing-25);
+  color: var(--color-subtle);
+  font-size: var(--font-size-small);
+  overflow-wrap: anywhere;
 }
 .df-preview-button {
   padding: 0;

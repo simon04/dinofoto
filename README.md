@@ -23,6 +23,7 @@ The workflow is split into four steps (tabs, each with the number of files, and 
 - **Category suggestions** in the table and the defaults: Commons categories matching the one being typed (each `;`-separated entry separately), and, for photos with a location, the most common categories of Commons files within 300 m (categories with a year left out, as they belong to other dates)
 - **Presets**: save the defaults under a name (e.g. per project or campaign) and load them later; kept in this browser
 - Enter / Shift+Enter moves to the same column in the next / previous row; “fill down” per column copies values into the empty cells below
+- The photo of the row being edited is shown in a corner (can be switched off)
 - Select which files to upload (checkbox per row, select all); click a thumbnail for a large preview
 - **File name pattern** for the selected files, e.g. `Kraków – Market Square ({nn})`, with a preview: `{n}`/`{nn}`/`{nnn}` (number, zero-padded, from a chosen start), `{title}` (current name), `{file}` (original file name), `{folder}` (directory), `{date}` (day taken), `{description}` (description as plain text); can be undone
 - **Edit selected**: set a value in one column for all files selected for upload (like VicuñaUploader’s group edit and AC/DC): replace, append (categories and depicts as further `;` entries) or fill only empty cells, with category and Wikidata suggestions; can be undone
