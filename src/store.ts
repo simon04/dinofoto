@@ -1,9 +1,10 @@
 import { createGlobalState, useLocalStorage } from "@vueuse/core";
-import { computed, ref, shallowRef } from "vue";
+import { computed, ref, shallowRef, watch } from "vue";
 import { useAuth } from "./auth";
 import { existingFiles, findBySha1 } from "./commons";
 import type { Table } from "./csv";
 import { readExif } from "./exif";
+import { target } from "./wiki";
 import { language } from "./i18n";
 import { emptyMeta, initialDefaults, type Defaults, type Meta } from "./meta";
 import { pool } from "./pool";
@@ -165,11 +166,18 @@ export const usePhotos = createGlobalState(() => {
     try {
       existingTitles.value = await existingFiles(
         items.value.map((item) => item.title),
+        target.value,
       );
     } finally {
       checkingTitles.value = false;
     }
   }
+
+  // names taken on one wiki may be free on another
+  watch(target, () => {
+    existingTitles.value = new Set();
+    if (items.value.length) checkTitles().catch(console.warn);
+  });
 
   const { username } = useAuth();
   const items = computed<Item[]>(() => {

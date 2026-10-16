@@ -42,6 +42,7 @@ The workflow is split into four steps (tabs, each with the number of files, and 
 - One click uploads all valid files one after another (`action=upload`, multipart, `assertuser`), with an editable upload summary; no confirmation per file
 - Runs unattended: network errors, expired tokens and rate limits are retried with backoff; files stopped by warnings (e.g. `exists`, `duplicate`) or errors are reported and skipped, the batch continues
 - Afterwards, per file: “Upload anyway” for warnings (publishes the stashed file, `filekey` + `ignorewarnings`, without uploading it again) and “Retry” for errors
+- **Test mode**: upload to [Test Commons](https://test-commons.wikimedia.org/) or [Test Wikipedia](https://test.wikipedia.org/) instead of Commons to try out a batch, with a warning while selected; file names are checked against the selected wiki, and uploads are tracked per wiki
 - Pause after the current file, resume later; uploaded files are not uploaded again
 - Progress by files and bytes, links to the uploaded files
 - Keeps the screen awake (Wake Lock API) and warns before closing the tab while uploading

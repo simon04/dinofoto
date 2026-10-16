@@ -12,7 +12,19 @@
       </cdx-button>
     </cdx-message>
 
+    <cdx-message v-if="target.id !== 'commons'" type="warning">
+      {{ t("upload-test-notice", target.host) }}
+    </cdx-message>
+
     <div class="df-toolbar">
+      <cdx-field>
+        <template #label>{{ t("upload-target") }}</template>
+        <cdx-select
+          v-model:selected="targetId"
+          :menu-items="targets"
+          :disabled="busy"
+        />
+      </cdx-field>
       <cdx-field class="df-comment">
         <template #label>{{ t("upload-comment") }}</template>
         <cdx-text-input v-model="comment" :disabled="running" />
@@ -63,7 +75,7 @@
           <td class="df-name">
             <a
               v-if="stateOf(item).state === 'done'"
-              :href="fileUrl(item.title)"
+              :href="fileUrl(item.title, target)"
               target="_blank"
               rel="external noopener"
             >
@@ -110,6 +122,7 @@ import {
   CdxIcon,
   CdxInfoChip,
   CdxMessage,
+  CdxSelect,
   CdxTextInput,
   useToast,
 } from "@wikimedia/codex";
@@ -120,7 +133,7 @@ import {
 } from "@wikimedia/codex-icons";
 import { t } from "../i18n";
 import { loginAvailable, useAuth } from "../auth";
-import { fileUrl } from "../commons";
+import { fileUrl, target, WIKIS } from "../wiki";
 import { formatSize } from "../format";
 import { useUploader, type UploadState } from "../uploader";
 import PhotoThumb from "./PhotoThumb.vue";
@@ -139,6 +152,18 @@ const {
   uploadItem,
 } = useUploader();
 const toast = useToast();
+
+const targets = WIKIS.map((wiki) => ({
+  value: wiki.id,
+  label: t(`wiki-${wiki.id}` as "wiki-commons"),
+  description: wiki.host,
+}));
+const targetId = computed({
+  get: () => target.value.id,
+  set: (id: string) => {
+    target.value = WIKIS.find((wiki) => wiki.id === id)!;
+  },
+});
 
 const remaining = computed(
   () =>
@@ -197,7 +222,7 @@ async function onLogin() {
   flex: 1;
   max-width: var(--size-4000);
 }
-.df-comment :deep(.cdx-field__control) {
+.df-toolbar :deep(.cdx-field) {
   margin: 0;
 }
 .df-summary {

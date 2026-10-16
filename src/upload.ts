@@ -1,8 +1,10 @@
-const API = "https://commons.wikimedia.org/w/api.php";
+import { apiUrl, type Wiki } from "./wiki";
 
 export interface Auth {
   accessToken: string;
   username: string;
+  /** the wiki to edit */
+  wiki: Wiki;
 }
 
 export class ApiError extends Error {
@@ -16,7 +18,7 @@ export class ApiError extends Error {
 }
 
 /**
- * Authenticated POST to the Commons Action API with an OAuth 2.0 access
+ * Authenticated POST to the Action API with an OAuth 2.0 access
  * token. `crossorigin` (instead of `origin=*`) keeps the request
  * authenticated; `assertuser` fails instead of uploading anonymously.
  */
@@ -24,7 +26,7 @@ export async function apiPost<T>(
   params: Record<string, string | Blob>,
   auth: Auth,
 ): Promise<T> {
-  const url = new URL(API);
+  const url = new URL(apiUrl(auth.wiki));
   url.search = new URLSearchParams({ crossorigin: "" }).toString();
   const body = new FormData();
   const all: Record<string, string | Blob> = {

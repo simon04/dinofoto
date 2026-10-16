@@ -1,6 +1,7 @@
 import { createGlobalState, useLocalStorage } from "@vueuse/core";
 import { computed, reactive, ref } from "vue";
 import { useAuth } from "./auth";
+import { target } from "./wiki";
 import { usePhotos, type Item } from "./store";
 import {
   ApiError,
@@ -37,8 +38,10 @@ export const useUploader = createGlobalState(() => {
   );
   const pausing = ref(false);
 
+  /** uploads are tracked per target: a test upload is no Commons upload */
+  const keyOf = (item: Item) => `${target.value.id}:${item.photo.path}`;
   const stateOf = (item: Item): UploadState =>
-    states[item.photo.path] ?? { state: "waiting" };
+    states[keyOf(item)] ?? { state: "waiting" };
   // uploaded files stay, though their names are taken now
   const queue = computed(() =>
     items.value.filter(
@@ -49,17 +52,18 @@ export const useUploader = createGlobalState(() => {
   function auth(): Auth {
     if (!accessToken.value || !username.value)
       throw new ApiError("notloggedin", "Not logged in");
-    return { accessToken: accessToken.value, username: username.value };
+    return {
+      accessToken: accessToken.value,
+      username: username.value,
+      wiki: target.value,
+    };
   }
 
   async function uploadItem(item: Item, ignorewarnings = false) {
-    states[item.photo.path] = {
-      ...stateOf(item),
-      state: "uploading",
-      message: undefined,
-    };
+    const key = keyOf(item);
+    states[key] = { ...stateOf(item), state: "uploading", message: undefined };
     // the reactive proxy, not the object assigned above
-    const state = states[item.photo.path]!;
+    const state = states[key]!;
     for (let attempt = 1; ; attempt++) {
       try {
         // fetched per file: tokens of renewed sessions differ

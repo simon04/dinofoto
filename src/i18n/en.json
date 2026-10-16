@@ -99,5 +99,10 @@
   "upload-state-warning": "Warning",
   "upload-state-failed": "Failed",
   "upload-ignore-warnings": "Upload anyway",
-  "upload-retry": "Retry"
+  "upload-retry": "Retry",
+  "upload-target": "Upload to",
+  "wiki-commons": "Wikimedia Commons",
+  "wiki-testcommons": "Test Commons (for trying out)",
+  "wiki-testwiki": "Test Wikipedia (for trying out)",
+  "upload-test-notice": "Test mode: files are uploaded to $1, not to Commons. Use it to try out a batch; files there may be deleted at any time."
 }

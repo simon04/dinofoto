@@ -1,8 +1,13 @@
-const API = "https://commons.wikimedia.org/w/api.php";
+import { apiUrl, COMMONS, type Wiki } from "./wiki";
 
-/** Anonymous GET to the Commons Action API. */
-export async function apiGet<T>(params: Record<string, string>): Promise<T> {
-  const url = new URL(API);
+export { fileUrl } from "./wiki";
+
+/** Anonymous GET to the Action API of Commons (or another wiki). */
+export async function apiGet<T>(
+  params: Record<string, string>,
+  wiki: Wiki = COMMONS,
+): Promise<T> {
+  const url = new URL(apiUrl(wiki));
   url.search = new URLSearchParams({
     format: "json",
     formatversion: "2",
@@ -26,24 +31,27 @@ export async function findBySha1(sha1: string): Promise<string | undefined> {
   return json.query.allimages[0]?.name;
 }
 
-export const fileUrl = (title: string) =>
-  `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(title.replaceAll(" ", "_"))}`;
-
-/** Titles (without `File:`, normalized) of these files that exist on Commons. */
-export async function existingFiles(titles: string[]): Promise<Set<string>> {
+/** Titles (without `File:`, normalized) of these files that exist on the wiki. */
+export async function existingFiles(
+  titles: string[],
+  wiki: Wiki = COMMONS,
+): Promise<Set<string>> {
   const existing = new Set<string>();
   for (let i = 0; i < titles.length; i += 50) {
     const json = await apiGet<{
       query: {
         pages: { title: string; missing?: boolean; invalid?: boolean }[];
       };
-    }>({
-      action: "query",
-      titles: titles
-        .slice(i, i + 50)
-        .map((title) => `File:${title}`)
-        .join("|"),
-    });
+    }>(
+      {
+        action: "query",
+        titles: titles
+          .slice(i, i + 50)
+          .map((title) => `File:${title}`)
+          .join("|"),
+      },
+      wiki,
+    );
     for (const page of json.query.pages)
       if (!page.missing && !page.invalid)
         existing.add(page.title.replace(/^File:/, ""));
@@ -53,7 +61,7 @@ export async function existingFiles(titles: string[]): Promise<Set<string>> {
 
 /** HTML of wikitext rendered as a file description page. */
 export async function parse(text: string, title: string): Promise<string> {
-  const res = await fetch(API, {
+  const res = await fetch(apiUrl(), {
     method: "POST",
     body: new URLSearchParams({
       action: "parse",
