@@ -73,14 +73,14 @@ The table can be pasted as CSV (comma or semicolon), tab-separated text from a s
 | ----------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------- |
 | `file`                              | original path or file name, to match rows to pictures (aliases `path`, `original`) | `2026/IMG_5612.JPG`                            |
 | `title`                             | file name on Commons, without extension (`filename`, `name`)                       | `Kraków – Market Square (01)`                  |
-| `description`                       | wikitext; without a language template, the description language is used            | `{{en                                          | 1=Houses}}`     |
+| `description`                       | wikitext; without a language template, the description language is used            | `{{en\|1=Houses}}`                             |
 | `caption`                           | plain text, or several languages                                                   | `en: Cloth Hall \| de: Tuchhallen`             |
 | `date`                              | as in `{{Information}}`                                                            | `2012-06-15 10:00:00`                          |
 | `categories`                        | separated by `;`, without `Category:`                                              | `Old Town Market Square in Kraków; Sukiennice` |
 | `depicts`                           | Wikidata items                                                                     | `Q188213; Q943`                                |
 | `latitude`, `longitude`, `heading`  | camera position and direction (`lat`, `lon`, `direction`)                          | `50.0617`, `19.9373`, `45`                     |
 | `objectLatitude`, `objectLongitude` | location of the photographed object (`object lat`, `object lon`)                   | `50.0614`, `19.9366`                           |
-| `author`, `source`, `license`       | wikitext, else the defaults                                                        | `{{self                                        | cc-by-sa-4.0}}` |
+| `author`, `source`, `license`       | wikitext, else the defaults                                                        | `{{self\|cc-by-sa-4.0}}`                       |
 
 Without a `file` column, rows apply in table order; without a header row, columns are taken in the order above, starting at the cell pasted into. Quoting follows RFC 4180 (`"a, b"`, `"say ""hi"""`).
 
