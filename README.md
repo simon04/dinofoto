@@ -47,6 +47,12 @@ The workflow is split into four steps (tabs, each with the number of files, and 
 - Keeps the screen awake (Wake Lock API) and warns before closing the tab while uploading
 - Files larger than 100 MiB are rejected in the review (chunked upload is not implemented yet)
 
+### Languages and design
+
+- UI in English, German, Spanish, French, Polish, Russian, Chinese and Arabic (`src/i18n/*.json`, loaded on demand, MediaWiki-style `$1` and `{{PLURAL:…}}` with CLDR plural forms); searchable selector over all Wikimedia languages, defaulting to the browser language
+- Right-to-left layout for Arabic, Hebrew, Persian and other RTL languages
+- Built with [Codex](https://doc.wikimedia.org/codex/) components and design tokens, dark mode follows the system setting
+
 ## Development
 
 ```sh
