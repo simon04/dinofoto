@@ -132,13 +132,13 @@ const html = computedAsync(
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  gap: var(--spacing-75);
+  margin-bottom: var(--spacing-150);
 }
 .df-review {
   display: grid;
   grid-template-columns: minmax(14rem, 1fr) 3fr;
-  gap: 1rem;
+  gap: var(--spacing-150);
   align-items: start;
 }
 .df-list {
@@ -147,15 +147,15 @@ const html = computedAsync(
   padding: 0;
   max-height: calc(100vh - 12rem);
   overflow: auto;
-  border: 1px solid var(--border-color-subtle);
+  border: var(--border-width-base) solid var(--border-color-subtle);
   border-radius: var(--border-radius-base);
 }
 .df-list li {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-50);
   margin: 0;
-  padding: 0.375rem 0.75rem;
+  padding: var(--spacing-50) var(--spacing-75);
   cursor: pointer;
   overflow-wrap: anywhere;
 }
@@ -178,8 +178,8 @@ const html = computedAsync(
 .df-detail h3 {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-top: 0;
+  gap: var(--spacing-75);
+  margin: 0 0 var(--spacing-100);
   overflow-wrap: anywhere;
 }
 .df-detail h3 small {
@@ -187,14 +187,14 @@ const html = computedAsync(
   font-weight: normal;
   color: var(--color-subtle);
 }
-.df-detail .cdx-message {
-  margin-bottom: 0.25rem;
+.df-detail .cdx-message + .cdx-message {
+  margin-top: var(--spacing-50);
 }
 .df-wikitext,
 .df-rendered {
-  margin-top: 0.75rem;
-  padding: 0.75rem;
-  border: 1px solid var(--border-color-subtle);
+  margin: var(--spacing-150) 0 0;
+  padding: var(--spacing-100) var(--spacing-150);
+  border: var(--border-width-base) solid var(--border-color-subtle);
   border-radius: var(--border-radius-base);
   background: var(--background-color-neutral-subtle);
   white-space: pre-wrap;
