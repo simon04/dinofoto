@@ -118,5 +118,17 @@
   "field-depicts": "Depicts",
   "problem-caption-long": "The caption is longer than 250 characters and will not be saved.",
   "problem-depicts-invalid": "Depicts should only contain Wikidata item IDs (Q1234).",
-  "upload-sdc-failed": "Uploaded, but captions and depicts were not saved: $1"
+  "upload-sdc-failed": "Uploaded, but captions and depicts were not saved: $1",
+  "sdc-unknown-value": "unknown value",
+  "property-P180": "Depicts",
+  "property-P571": "Inception",
+  "property-P1259": "Coordinates of the point of view",
+  "property-P7787": "Heading",
+  "property-P275": "Copyright license",
+  "property-P6216": "Copyright status",
+  "property-P7482": "Source of file",
+  "property-P170": "Creator",
+  "property-P2093": "Author name string",
+  "property-P4174": "Wikimedia username",
+  "property-P2699": "URL"
 }

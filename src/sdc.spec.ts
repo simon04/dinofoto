@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vite-plus/test";
 import { emptyMeta, initialDefaults, invalidItems, splitItems } from "./meta";
-import { structuredData } from "./sdc";
+import { statements, structuredData, timeValue } from "./sdc";
 import { COMMONS, WIKIS } from "./wiki";
 
-const defaults = initialDefaults("de");
+// no license: only the statements under test
+const defaults = { ...initialDefaults("de"), license: "", source: "" };
 
 describe("structuredData", () => {
   it("has the caption as label and depicts statements", () => {
@@ -54,5 +55,65 @@ describe("items", () => {
   it("splits and validates item IDs", () => {
     expect(splitItems("Q42; q5 Q42")).toEqual(["Q42", "Q5"]);
     expect(invalidItems("Q42; Douglas Adams")).toEqual(["Douglas", "Adams"]);
+  });
+});
+
+describe("statements", () => {
+  const meta = {
+    ...emptyMeta(),
+    date: "2012-06-15 10:00:00",
+    latitude: "50.0617",
+    longitude: "19.9373",
+    heading: "45",
+  };
+  const props = (list: { mainsnak: { property: string } }[]) =>
+    list.map((s) => s.mainsnak.property);
+
+  it("derives inception, point of view, license and own work", () => {
+    const list = statements(meta, initialDefaults("en"), "Yarl");
+    expect(props(list)).toEqual([
+      "P571",
+      "P1259",
+      "P275",
+      "P6216",
+      "P7482",
+      "P170",
+    ]);
+    expect(list[1]!.qualifiers?.[0]?.datavalue?.value).toEqual({
+      amount: "+45",
+      unit: "http://www.wikidata.org/entity/Q28390",
+    });
+    expect(list[5]).toMatchObject({
+      mainsnak: { snaktype: "somevalue", property: "P170" },
+      qualifiers: [
+        { property: "P2093", datavalue: { value: "Yarl" } },
+        { property: "P4174", datavalue: { value: "Yarl" } },
+        {
+          property: "P2699",
+          datavalue: { value: "https://commons.wikimedia.org/wiki/User:Yarl" },
+        },
+      ],
+    });
+  });
+
+  it("has no creator for other authors and maps CC0", () => {
+    const list = statements(
+      { ...meta, author: "Jane", license: "{{cc-zero}}" },
+      initialDefaults("en"),
+      "Yarl",
+    );
+    expect(props(list)).toEqual(["P571", "P1259", "P275", "P6216"]);
+    expect(list[3]!.mainsnak.datavalue?.value).toMatchObject({
+      id: "Q88088423",
+    });
+  });
+
+  it("parses dates with year, month or day precision", () => {
+    expect(timeValue("2012")).toMatchObject({
+      time: "+2012-00-00T00:00:00Z",
+      precision: 9,
+    });
+    expect(timeValue("2012-06")).toMatchObject({ precision: 10 });
+    expect(timeValue("circa 2012")).toBeUndefined();
   });
 });

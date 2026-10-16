@@ -118,7 +118,12 @@ export const useUploader = createGlobalState(() => {
     token: string,
     state: UploadState,
   ) {
-    const data = structuredData(item.meta, defaults.value, target.value);
+    const data = structuredData(
+      item.meta,
+      defaults.value,
+      target.value,
+      username.value,
+    );
     if (!data) return;
     try {
       await saveStructuredData(

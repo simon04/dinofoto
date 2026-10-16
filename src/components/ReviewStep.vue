@@ -74,18 +74,35 @@
             <dt>{{ t("field-caption") }} ({{ defaults.language }})</dt>
             <dd>{{ sdc.caption }}</dd>
           </template>
-          <template v-if="sdc.depicts.length">
-            <dt>{{ t("field-depicts") }}</dt>
+          <template v-for="(statement, i) in sdc.statements" :key="i">
+            <dt>
+              {{ t(`property-${statement.mainsnak.property}` as MessageKey) }}
+            </dt>
             <dd>
-              <a
-                v-for="id in sdc.depicts"
-                :key="id"
-                :href="`https://www.wikidata.org/wiki/${id}`"
-                target="_blank"
-                rel="external noopener"
+              <template v-for="part in [snakText(statement.mainsnak)]" :key="0">
+                <a
+                  v-if="part.href"
+                  :href="part.href"
+                  target="_blank"
+                  rel="external noopener"
+                >
+                  {{ part.text }}
+                </a>
+                <template
+                  v-else-if="statement.mainsnak.snaktype === 'somevalue'"
+                >
+                  {{ t("sdc-unknown-value") }}
+                </template>
+                <template v-else>{{ part.text }}</template>
+              </template>
+              <span
+                v-for="q in statement.qualifiers ?? []"
+                :key="q.property"
+                class="df-qualifier"
               >
-                {{ id }}
-              </a>
+                {{ t(`property-${q.property}` as MessageKey) }}:
+                {{ snakText(q).text }}
+              </span>
             </dd>
           </template>
         </dl>
@@ -114,12 +131,14 @@ import { t } from "../i18n";
 import { parse } from "../commons";
 import { usePhotos } from "../store";
 import { ERRORS } from "../wikitext";
-import { splitItems } from "../meta";
-import { structuredData } from "../sdc";
+import { snakText, statements, structuredData } from "../sdc";
+import { useAuth } from "../auth";
+import type { MessageKey } from "../i18n";
 import { target } from "../wiki";
 import PhotoThumb from "./PhotoThumb.vue";
 
 const { items, defaults, checkTitles, checkingTitles } = usePhotos();
+const { username } = useAuth();
 
 // shown when the step is opened: catches names taken meanwhile
 onMounted(checkTitles);
@@ -134,11 +153,16 @@ const current = computed(
 /** structured data saved after the upload, if the target supports it */
 const sdc = computed(() => {
   const item = current.value;
-  const data = item && structuredData(item.meta, defaults.value, target.value);
+  const data =
+    item &&
+    structuredData(item.meta, defaults.value, target.value, username.value);
   if (!item || !data) return undefined;
   return {
     caption: "labels" in data ? item.meta.caption.trim() : "",
-    depicts: "claims" in data ? splitItems(item.meta.depicts) : [],
+    statements:
+      "claims" in data
+        ? statements(item.meta, defaults.value, username.value)
+        : [],
   };
 });
 
@@ -242,6 +266,9 @@ const html = computedAsync(
 }
 .df-sdc dt {
   font-weight: var(--font-weight-bold);
+}
+.df-qualifier {
+  color: var(--color-subtle);
 }
 .df-sdc dd {
   display: flex;
