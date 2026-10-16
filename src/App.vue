@@ -1,24 +1,37 @@
 <template>
   <div class="vector-header-container">
     <div class="vector-header mw-header df-header">
-      <a class="df-logo" href="./">DinoFoto</a>
+      <a class="df-logo" href="./">
+        <cdx-icon :icon="cdxIconLogoWikimediaCommons" />
+        DinoFoto
+      </a>
       <span class="df-intro">{{ t("app-intro") }}</span>
       <LanguageSelector v-model="language" />
       <UserMenu />
     </div>
   </div>
 
-  <main class="mw-page-container df-main"></main>
+  <main class="mw-page-container df-main">
+    <cdx-tabs v-model:active="step" :framed="true">
+      <cdx-tab name="files" :label="t('step-files')">
+        <FilesStep />
+      </cdx-tab>
+    </cdx-tabs>
+  </main>
   <cdx-toast-container />
 </template>
 
 <script setup lang="ts">
-import { watchEffect } from "vue";
+import { ref, watchEffect } from "vue";
 import { useTextDirection } from "@vueuse/core";
-import { CdxToastContainer } from "@wikimedia/codex";
+import { CdxIcon, CdxTab, CdxTabs, CdxToastContainer } from "@wikimedia/codex";
+import { cdxIconLogoWikimediaCommons } from "@wikimedia/codex-icons";
 import { isRTL, language, t } from "./i18n";
 import LanguageSelector from "./components/LanguageSelector.vue";
 import UserMenu from "./components/UserMenu.vue";
+import FilesStep from "./components/FilesStep.vue";
+
+const step = ref("files");
 
 const dir = useTextDirection();
 watchEffect(() => {
@@ -60,6 +73,27 @@ textarea.df-mono {
   font-family: var(--font-family-monospace);
   font-size: var(--font-size-small);
 }
+
+.df-table {
+  border-collapse: collapse;
+}
+.df-table th,
+.df-table td {
+  border-bottom: 1px solid var(--border-color-subtle);
+  padding: 0.25rem 0.5rem;
+  text-align: start;
+  vertical-align: middle;
+}
+.df-table th {
+  background: var(--background-color-neutral-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.df-num {
+  text-align: end !important;
+  white-space: nowrap;
+}
 </style>
 
 <style scoped>
@@ -70,6 +104,9 @@ textarea.df-mono {
   padding: 0.5rem 1rem;
 }
 .df-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 1.25rem;
   font-weight: bold;
 }

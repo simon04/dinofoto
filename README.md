@@ -4,6 +4,16 @@ Batch upload a local directory of photos to [Wikimedia Commons](https://commons.
 
 ## Features
 
+The workflow is split into steps (tabs), so that 100+ photos can be prepared and then uploaded in one go without intermediate halts.
+
+### 1. Files
+
+- Open a local directory with the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/Window/showDirectoryPicker) (Chrome, Edge and other Chromium-based browsers); nothing leaves the computer until the upload
+- Pictures in subdirectories are included (JPEG, PNG, GIF, TIFF, WebP, SVG), hidden files and directories (`.*`) are skipped, sorted in natural order (`IMG_2` before `IMG_10`)
+- Each picture is hashed (SHA-1) in the browser and looked up on Commons (`list=allimages&aisha1=…`); pictures already on Commons are hidden (toggle to show them, with a link to the existing file), duplicates within the directory are flagged
+- Hashes are cached in localStorage by path, size and modification time, so reopening a directory is instant
+- Live progress and counts (new, on Commons, duplicates, errors); thumbnails from the embedded EXIF thumbnail (no decoding of the full image), created lazily when scrolled into view
+
 ## Development
 
 ```sh
