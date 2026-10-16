@@ -32,7 +32,9 @@ watch(
     // e.g. zh-hans → zh
     const load =
       loaders[`./${code}.json`] ?? loaders[`./${code.split("-")[0]}.json`];
-    messages.value = load ? (await load()).default : {};
+    const loaded = load ? (await load()).default : {};
+    // a slower load must not override a language selected meanwhile
+    if (code === language.value) messages.value = loaded;
   },
   { immediate: true },
 );

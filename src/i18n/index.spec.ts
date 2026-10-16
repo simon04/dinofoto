@@ -42,8 +42,10 @@ describe("t", () => {
 
 describe("translations", () => {
   it("loads translations on demand, with base-language fallback", async () => {
+    language.value = "de";
+    await vi.waitFor(() => expect(t("step-files")).toBe("1. Dateien"));
     language.value = "de-at";
-    await vi.waitFor(() => expect(t("step-files")).not.toBe("1. Files"));
+    await vi.waitFor(() => expect(t("step-files")).toBe("1. Dateien"));
     language.value = "nl";
     await vi.waitFor(() => expect(t("step-files")).toBe("1. Files"));
   });
