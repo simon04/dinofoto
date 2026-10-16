@@ -133,6 +133,20 @@
                   @focus="suggestFor(photo)"
                 />
                 <input
+                  v-else-if="field === 'depicts'"
+                  v-model="metaOf(photo).depicts"
+                  :data-row="row"
+                  :data-field="field"
+                  list="df-item-list"
+                  autocomplete="off"
+                  placeholder="Q…"
+                  @keydown="onKeydown"
+                  @paste="onPaste($event, row, field)"
+                  @input="
+                    suggestItems(metaOf(photo).depicts, defaults.language)
+                  "
+                />
+                <input
                   v-else
                   v-model="metaOf(photo)[field]"
                   :data-row="row"
@@ -151,6 +165,15 @@
     <datalist id="df-category-list">
       <option
         v-for="option in categoryOptions"
+        :key="option.value"
+        :value="option.value"
+        :label="option.label"
+      />
+    </datalist>
+
+    <datalist id="df-item-list">
+      <option
+        v-for="option in itemOptions"
         :key="option.value"
         :value="option.value"
         :label="option.label"
@@ -218,6 +241,7 @@ import {
 } from "@wikimedia/codex-icons";
 import { readTable, writeTable, type Table } from "../csv";
 import { useCategorySuggestions } from "../categories";
+import { useItemSuggestions } from "../sdc";
 import { t } from "../i18n";
 import { useAuth } from "../auth";
 import { DEFAULT_FIELDS, FIELDS, LICENSES, type Field } from "../meta";
@@ -280,6 +304,8 @@ function suggestFor(photo: Photo) {
   const m = metaOf(photo);
   suggest(m.categories, m.latitude, m.longitude);
 }
+
+const { options: itemOptions, suggest: suggestItems } = useItemSuggestions();
 
 const showPattern = ref(false);
 const showImport = ref(false);
@@ -412,7 +438,9 @@ const previewUrl = useObjectUrl(computed(() => preview.value?.file));
 .df-date {
   min-width: 11rem;
 }
+.df-caption,
 .df-categories,
+.df-depicts,
 .df-author,
 .df-source,
 .df-license {

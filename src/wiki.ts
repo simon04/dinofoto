@@ -5,13 +5,16 @@ import { computed } from "vue";
 export interface Wiki {
   id: string;
   host: string;
-  /** structured data (captions, statements) with Wikidata items */
+  /** structured data: captions (Wikibase MediaInfo) */
+  mediainfo: boolean;
+  /** statements refer to Wikidata items */
   wikidata: boolean;
 }
 
 export const COMMONS: Wiki = {
   id: "commons",
   host: "commons.wikimedia.org",
+  mediainfo: true,
   wikidata: true,
 };
 
@@ -22,9 +25,19 @@ export const COMMONS: Wiki = {
 export const WIKIS: Wiki[] = [
   COMMONS,
   // structured data with test.wikidata.org items, needs autoconfirmed
-  { id: "testcommons", host: "test-commons.wikimedia.org", wikidata: false },
+  {
+    id: "testcommons",
+    host: "test-commons.wikimedia.org",
+    mediainfo: true,
+    wikidata: false,
+  },
   // uploads for every logged-in user
-  { id: "testwiki", host: "test.wikipedia.org", wikidata: false },
+  {
+    id: "testwiki",
+    host: "test.wikipedia.org",
+    mediainfo: false,
+    wikidata: false,
+  },
 ];
 
 const targetId = useLocalStorage("dinofoto.target", COMMONS.id);

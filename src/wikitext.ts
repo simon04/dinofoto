@@ -1,4 +1,10 @@
-import { splitCategories, type Defaults, type Meta } from "./meta";
+import {
+  invalidItems,
+  MAX_CAPTION,
+  splitCategories,
+  type Defaults,
+  type Meta,
+} from "./meta";
 import { extension } from "./scan";
 
 /** Author for own work: a link to the user page of the uploader. */
@@ -97,6 +103,8 @@ export type Problem =
   | "date-missing"
   | "categories-missing"
   | "categories-unknown"
+  | "caption-long"
+  | "depicts-invalid"
   | "location-invalid";
 
 /** Problems that prevent the upload; others are warnings. */
@@ -142,6 +150,8 @@ export function problems(
   if (!m.description) result.push("description-missing");
   if (!m.date.trim()) result.push("date-missing");
   if (!m.categories) result.push("categories-missing");
+  if (m.caption.trim().length > MAX_CAPTION) result.push("caption-long");
+  if (invalidItems(m.depicts).length) result.push("depicts-invalid");
   if (
     (m.latitude.trim() || m.longitude.trim()) &&
     !(

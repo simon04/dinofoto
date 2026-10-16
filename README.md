@@ -16,14 +16,15 @@ The workflow is split into four steps (tabs, each with the number of files, and 
 
 ### 2. Describe
 
-- All new pictures in one spreadsheet-like table: file name (the extension is kept), description, date, categories, latitude, longitude, camera heading; optionally author, source and license per file
+- All new pictures in one spreadsheet-like table: file name (the extension is kept), description, caption, date, categories, depicts, latitude, longitude, camera heading; optionally author, source and license per file
 - Prefilled from the file name and EXIF: date taken (`DateTimeOriginal`), GPS position and camera heading ([exifr](https://github.com/MikeKovarik/exifr), reads only the metadata, not the whole file)
 - Defaults for all files: description language, description, categories (added to every file), author (empty: your user page), source (`{{own}}`) and license (`{{self|cc-by-sa-4.0}}` or other presets, or any license template)
+- **Structured data**: caption (plain text in the description language, max. 250 characters) and depicts (Wikidata items, `Q943; Q42`, with search by label as you type) per file; shown in the review and saved after each upload as caption and depicts (P180) statements
 - **Category suggestions** in the table and the defaults: Commons categories matching the one being typed (each `;`-separated entry separately), and, for photos with a location, the most common categories of Commons files within 300 m (categories with a year left out, as they belong to other dates)
 - Enter / Shift+Enter moves to the same column in the next / previous row; “fill down” per column copies values into the empty cells below
 - Select which files to upload (checkbox per row, select all); click a thumbnail for a large preview
 - **File name pattern** for the selected files, e.g. `Kraków – Market Square ({nn})`, with a preview: `{n}`/`{nn}`/`{nnn}` (number, zero-padded, from a chosen start), `{title}` (current name), `{file}` (original file name), `{folder}` (directory), `{date}` (day taken), `{description}` (description as plain text); can be undone
-- **Paste CSV**: a table from a spreadsheet (tab-separated) or CSV (comma or semicolon, RFC 4180 quoting); the header row names the columns (`file`, `title`, `description`, `date`, `categories`, `latitude`, `longitude`, `heading`, `author`, `source`, `license`, and aliases such as `path`, `lat`, `lon`); a `file` column matches rows to pictures by path or file name, otherwise rows are applied in table order; unknown columns and unmatched rows are reported
+- **Paste CSV**: a table from a spreadsheet (tab-separated) or CSV (comma or semicolon, RFC 4180 quoting); the header row names the columns (`file`, `title`, `description`, `caption`, `date`, `categories`, `depicts`, `latitude`, `longitude`, `heading`, `author`, `source`, `license`, and aliases such as `path`, `lat`, `lon`); a `file` column matches rows to pictures by path or file name, otherwise rows are applied in table order; unknown columns and unmatched rows are reported
 - **Paste cells** copied from a spreadsheet into any cell: they fill the table from that cell to the right and downwards
 - **Copy table** (tab-separated, to paste into a spreadsheet, edit there and paste back) and **Download CSV**
 - Every paste can be undone from the toast
@@ -44,6 +45,7 @@ The workflow is split into four steps (tabs, each with the number of files, and 
 - One click uploads all valid files one after another (`action=upload`, multipart, `assertuser`), with an editable upload summary; no confirmation per file
 - Runs unattended: network errors, expired tokens and rate limits are retried with backoff; files stopped by warnings (e.g. `exists`, `duplicate`) or errors are reported and skipped, the batch continues
 - Afterwards, per file: “Upload anyway” for warnings (publishes the stashed file, `filekey` + `ignorewarnings`, without uploading it again) and “Retry” for errors
+- Captions and depicts are saved right after each upload (`wbeditentity` on the file's MediaInfo entity `M<page ID>`); if that fails, the upload still counts and the error is shown. Test Commons gets captions only (its statements would refer to test.wikidata.org), Test Wikipedia neither
 - **Test mode**: upload to [Test Commons](https://test-commons.wikimedia.org/) or [Test Wikipedia](https://test.wikipedia.org/) instead of Commons to try out a batch, with a warning while selected; file names are checked against the selected wiki, and uploads are tracked per wiki
 - Pause after the current file, resume later; uploaded files are not uploaded again
 - Progress by files and bytes, links to the uploaded files

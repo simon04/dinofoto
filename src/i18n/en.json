@@ -113,5 +113,10 @@
   "pattern-apply": "Rename {{PLURAL:$1|$1 file|$1 files}}",
   "pattern-applied": "Renamed {{PLURAL:$1|$1 file|$1 files}}.",
   "categories-nearby": "nearby",
-  "problem-categories-unknown": "Categories that do not exist on Commons: $1."
+  "problem-categories-unknown": "Categories that do not exist on Commons: $1.",
+  "field-caption": "Caption",
+  "field-depicts": "Depicts",
+  "problem-caption-long": "The caption is longer than 250 characters and will not be saved.",
+  "problem-depicts-invalid": "Depicts should only contain Wikidata item IDs (Q1234).",
+  "upload-sdc-failed": "Uploaded, but captions and depicts were not saved: $1"
 }

@@ -1,6 +1,8 @@
 import { createGlobalState, useLocalStorage } from "@vueuse/core";
 import { computed, reactive, ref } from "vue";
 import { useAuth } from "./auth";
+import { t } from "./i18n";
+import { saveStructuredData, structuredData } from "./sdc";
 import { target } from "./wiki";
 import { usePhotos, type Item } from "./store";
 import {
@@ -24,7 +26,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const RETRIES = 5;
 
 export const useUploader = createGlobalState(() => {
-  const { items } = usePhotos();
+  const { items, defaults } = usePhotos();
   const { accessToken, username } = useAuth();
   const comment = useLocalStorage("dinofoto.comment", "Uploaded with DinoFoto");
   /** by picture path */
@@ -82,6 +84,7 @@ export const useUploader = createGlobalState(() => {
         );
         if (result.result === "Success") {
           Object.assign(state, { state: "done", filekey: undefined });
+          await saveSdc(item, result.filename, token, state);
         } else {
           Object.assign(state, {
             state: "warning",
@@ -105,6 +108,30 @@ export const useUploader = createGlobalState(() => {
         // back off: 5 s, 10 s, 20 s, … and a minute for rate limits
         await sleep(code === "ratelimited" ? 60_000 : 5_000 * 2 ** attempt);
       }
+    }
+  }
+
+  /** Captions and depicts; a failure is reported, the upload stays done. */
+  async function saveSdc(
+    item: Item,
+    filename: string,
+    token: string,
+    state: UploadState,
+  ) {
+    const data = structuredData(item.meta, defaults.value, target.value);
+    if (!data) return;
+    try {
+      await saveStructuredData(
+        filename,
+        data,
+        { token, summary: comment.value },
+        auth(),
+      );
+    } catch (e) {
+      state.message = t(
+        "upload-sdc-failed",
+        e instanceof Error ? e.message : String(e),
+      );
     }
   }
 

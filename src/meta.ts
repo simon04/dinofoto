@@ -3,9 +3,13 @@ export interface Meta {
   /** target file name without extension */
   title: string;
   description: string;
+  /** short plain-text label in the description language (structured data) */
+  caption: string;
   date: string;
   /** separated by `;` or newlines, without `Category:` */
   categories: string;
+  /** Wikidata items shown, e.g. `Q1234; Q5` (structured data) */
+  depicts: string;
   latitude: string;
   longitude: string;
   /** camera heading in degrees */
@@ -23,8 +27,10 @@ export type Field = Exclude<keyof Meta, "skip">;
 export const FIELDS: Field[] = [
   "title",
   "description",
+  "caption",
   "date",
   "categories",
+  "depicts",
   "latitude",
   "longitude",
   "heading",
@@ -62,8 +68,10 @@ export const LICENSES = [
 export const emptyMeta = (): Meta => ({
   title: "",
   description: "",
+  caption: "",
   date: "",
   categories: "",
+  depicts: "",
   latitude: "",
   longitude: "",
   heading: "",
@@ -95,3 +103,21 @@ export function splitCategories(value: string): string[] {
     )
     .filter(Boolean);
 }
+
+/** Wikidata item IDs in a `;`/space separated list, e.g. `Q1234; Q5`. */
+export function splitItems(value: string): string[] {
+  return [...new Set(value.match(/\bQ\d+\b/gi) ?? [])].map((id) =>
+    id.toUpperCase(),
+  );
+}
+
+/** Entries of a depicts list that are no item IDs. */
+export function invalidItems(value: string): string[] {
+  return value
+    .split(/[;,\s]+/)
+    .map((v) => v.trim())
+    .filter((v) => v && !/^Q\d+$/i.test(v));
+}
+
+/** Captions are limited by Wikibase MediaInfo. */
+export const MAX_CAPTION = 250;

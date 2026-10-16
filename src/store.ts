@@ -72,6 +72,9 @@ export const usePhotos = createGlobalState(() => {
   const hashes = useLocalStorage<Record<string, string>>("dinofoto.sha1", {});
   /** metadata by SHA-1, kept across reloads and directories */
   const meta = useLocalStorage<Record<string, Meta>>("dinofoto.meta", {});
+  // fields added later: stored metadata gets them empty
+  for (const [sha1, m] of Object.entries(meta.value))
+    meta.value[sha1] = { ...emptyMeta(), ...m };
   const defaults = useLocalStorage<Defaults>(
     "dinofoto.defaults",
     initialDefaults(language.value),

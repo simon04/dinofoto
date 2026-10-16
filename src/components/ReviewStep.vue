@@ -69,6 +69,26 @@
         <!-- eslint-disable-next-line vue/no-v-html -- rendered by MediaWiki -->
         <div v-if="rendered" class="df-rendered" v-html="html" />
         <pre v-else class="df-wikitext">{{ current.text }}</pre>
+        <dl v-if="sdc" class="df-sdc">
+          <template v-if="sdc.caption">
+            <dt>{{ t("field-caption") }} ({{ defaults.language }})</dt>
+            <dd>{{ sdc.caption }}</dd>
+          </template>
+          <template v-if="sdc.depicts.length">
+            <dt>{{ t("field-depicts") }}</dt>
+            <dd>
+              <a
+                v-for="id in sdc.depicts"
+                :key="id"
+                :href="`https://www.wikidata.org/wiki/${id}`"
+                target="_blank"
+                rel="external noopener"
+              >
+                {{ id }}
+              </a>
+            </dd>
+          </template>
+        </dl>
       </article>
     </div>
   </section>
@@ -94,9 +114,12 @@ import { t } from "../i18n";
 import { parse } from "../commons";
 import { usePhotos } from "../store";
 import { ERRORS } from "../wikitext";
+import { splitItems } from "../meta";
+import { structuredData } from "../sdc";
+import { target } from "../wiki";
 import PhotoThumb from "./PhotoThumb.vue";
 
-const { items, checkTitles, checkingTitles } = usePhotos();
+const { items, defaults, checkTitles, checkingTitles } = usePhotos();
 
 // shown when the step is opened: catches names taken meanwhile
 onMounted(checkTitles);
@@ -107,6 +130,17 @@ const current = computed(
     items.value.find((item) => item.photo.path === selected.value) ??
     items.value[0],
 );
+
+/** structured data saved after the upload, if the target supports it */
+const sdc = computed(() => {
+  const item = current.value;
+  const data = item && structuredData(item.meta, defaults.value, target.value);
+  if (!item || !data) return undefined;
+  return {
+    caption: "labels" in data ? item.meta.caption.trim() : "",
+    depicts: "claims" in data ? splitItems(item.meta.depicts) : [],
+  };
+});
 
 const invalid = computed(() => items.value.filter((i) => i.invalid).length);
 const warned = computed(
@@ -199,6 +233,21 @@ const html = computedAsync(
   background: var(--background-color-neutral-subtle);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+.df-sdc {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--spacing-25) var(--spacing-100);
+  margin: var(--spacing-100) 0 0;
+}
+.df-sdc dt {
+  font-weight: var(--font-weight-bold);
+}
+.df-sdc dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-50);
+  margin: 0;
 }
 .df-rendered {
   white-space: normal;

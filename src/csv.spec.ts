@@ -53,8 +53,8 @@ describe("readTable", () => {
 
   it("takes columns in order without header", () => {
     expect(readTable("A\tB\nC\tD", "description").rows).toEqual([
-      { values: { description: "A", date: "B" } },
-      { values: { description: "C", date: "D" } },
+      { values: { description: "A", caption: "B" } },
+      { values: { description: "C", caption: "D" } },
     ]);
   });
 
