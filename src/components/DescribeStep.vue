@@ -147,20 +147,31 @@
                   @input="suggestFor(photo)"
                   @focus="suggestFor(photo)"
                 />
-                <input
-                  v-else-if="field === 'depicts'"
-                  v-model="metaOf(photo).depicts"
-                  :data-row="row"
-                  :data-field="field"
-                  list="df-item-list"
-                  autocomplete="off"
-                  placeholder="Q…"
-                  @keydown="onKeydown"
-                  @paste="onPaste($event, row, field)"
-                  @input="
-                    suggestItems(metaOf(photo).depicts, defaults.language)
-                  "
-                />
+                <template v-else-if="field === 'depicts'">
+                  <input
+                    v-model="metaOf(photo).depicts"
+                    :data-row="row"
+                    :data-field="field"
+                    list="df-item-list"
+                    autocomplete="off"
+                    placeholder="Q…"
+                    @keydown="onKeydown"
+                    @paste="onPaste($event, row, field)"
+                    @input="
+                      suggestItems(metaOf(photo).depicts, defaults.language)
+                    "
+                  />
+                  <small
+                    v-if="splitItems(metaOf(photo).depicts).length"
+                    class="df-item-labels"
+                  >
+                    {{
+                      splitItems(metaOf(photo).depicts)
+                        .map((id) => itemLabel(id, defaults.language || "en"))
+                        .join(", ")
+                    }}
+                  </small>
+                </template>
                 <input
                   v-else
                   v-model="metaOf(photo)[field]"
@@ -258,6 +269,7 @@ import {
 } from "@wikimedia/codex-icons";
 import { readTable, writeTable, type Table } from "../csv";
 import { useCategorySuggestions } from "../categories";
+import { itemLabel } from "../labels";
 import { useItemSuggestions } from "../sdc";
 import { t } from "../i18n";
 import { useAuth } from "../auth";
@@ -267,6 +279,7 @@ import {
   formatCaptions,
   LICENSES,
   MAX_CAPTION,
+  splitItems,
   type Field,
 } from "../meta";
 import { captionsFromDescription } from "../pattern";
@@ -517,6 +530,11 @@ const previewUrl = useObjectUrl(computed(() => preview.value?.file));
   gap: var(--spacing-25);
 }
 .df-ext {
+  color: var(--color-subtle);
+}
+.df-item-labels {
+  display: block;
+  margin-top: var(--spacing-25);
   color: var(--color-subtle);
 }
 .df-skipped td {

@@ -86,7 +86,7 @@
                   target="_blank"
                   rel="external noopener"
                 >
-                  {{ part.text }}
+                  {{ itemLabel(part.text, defaults.language || "en") }}
                 </a>
                 <template
                   v-else-if="statement.mainsnak.snaktype === 'somevalue'"
@@ -132,6 +132,7 @@ import { parse } from "../commons";
 import { usePhotos } from "../store";
 import { ERRORS } from "../wikitext";
 import { snakText, statements, structuredData } from "../sdc";
+import { itemLabel } from "../labels";
 import { parseCaptions } from "../meta";
 import { useAuth } from "../auth";
 import type { MessageKey } from "../i18n";

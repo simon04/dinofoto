@@ -65,7 +65,6 @@ Out of scope (Commons itself): search (●3), map search, MediaViewer speed (●
 - **Enrich files already on Commons** (M, ISA, SDC tool): for photos skipped as duplicates, show and add missing captions and statements.
 - **Default statements in presets** (S, OpenRefine schemas): e.g. creator as own Wikidata item, or a fixed depicts.
 - **Batch verification links** (S, Media Search, WCQS; ●3 “evaluate structured data”, ●2 “list of all files with statement XYZ”): `haswbstatement:`/`incategory:` search and a WCQS map of the batch.
-- **Show labels of depicted items** (S): fetch labels for the Q-IDs in the table and review.
 
 ## Campaigns
 
@@ -74,4 +73,4 @@ Out of scope (Commons itself): search (●3), map search, MediaViewer speed (●
 
 ## Done
 
-Object location. Titles, descriptions and keyword categories from EXIF/IPTC/XMP. Title blacklist, protected titles and UploadWizard’s title rules. Chunked and asynchronous upload, stashing first to show server warnings (incl. deleted duplicates). Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.
+Labels of Wikidata items. Object location. Titles, descriptions and keyword categories from EXIF/IPTC/XMP. Title blacklist, protected titles and UploadWizard’s title rules. Chunked and asynchronous upload, stashing first to show server warnings (incl. deleted duplicates). Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.
