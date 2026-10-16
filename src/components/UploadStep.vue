@@ -93,6 +93,15 @@
         <cdx-icon :icon="cdxIconCopy" size="small" />
         {{ t("upload-copy-qs") }}
       </cdx-button>
+      <template v-if="placemarks.length">
+        <cdx-button size="small" @click="downloadKml">
+          <cdx-icon :icon="cdxIconDownload" size="small" />
+          {{ t("upload-download-kml") }}
+        </cdx-button>
+        <a :href="mapUrl" target="_blank" rel="external noopener">
+          {{ t("upload-show-map") }}
+        </a>
+      </template>
     </div>
 
     <table class="df-table df-uploads">
@@ -182,6 +191,7 @@ import {
 import {
   cdxIconCheck,
   cdxIconCopy,
+  cdxIconDownload,
   cdxIconImageGallery,
   cdxIconLogIn,
   cdxIconPause,
@@ -195,6 +205,7 @@ import { useUploader, type UploadState } from "../uploader";
 import PhotoThumb from "./PhotoThumb.vue";
 import { parseCaptions } from "../meta";
 import { quickStatements, statements } from "../sdc";
+import { toGeoJson, toKml, type Placemark } from "../geo";
 import { usePhotos } from "../store";
 
 const { username, login } = useAuth();
@@ -225,7 +236,7 @@ const targetId = computed({
   },
 });
 
-const { defaults } = usePhotos();
+const { defaults, directory } = usePhotos();
 const done = computed(() =>
   queue.value.filter((item) => stateOf(item).state === "done"),
 );
@@ -258,6 +269,39 @@ const qsLines = computed(() =>
       })
     : [],
 );
+/** uploaded files with a camera position, for KML and the map */
+const placemarks = computed<Placemark[]>(() =>
+  done.value.flatMap((item) => {
+    const { latitude, longitude } = item.meta;
+    if (!latitude.trim() || !longitude.trim()) return [];
+    const title = stateOf(item).filename ?? item.title;
+    return [
+      {
+        title,
+        url: fileUrl(title, target.value),
+        latitude: +latitude,
+        longitude: +longitude,
+      },
+    ];
+  }),
+);
+function downloadKml() {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(
+    new Blob([toKml(directory.value?.name ?? "DinoFoto", placemarks.value)], {
+      type: "application/vnd.google-earth.kml+xml",
+    }),
+  );
+  a.download = `${directory.value?.name ?? "dinofoto"}.kml`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+/** geojson.io with the camera positions in the URL */
+const mapUrl = computed(
+  () =>
+    `https://geojson.io/#data=data:application/json,${encodeURIComponent(JSON.stringify(toGeoJson(placemarks.value)))}`,
+);
+
 async function copyQuickStatements() {
   await copy(qsLines.value.join("\n") + "\n");
   toast.success(t("upload-copied-qs"));

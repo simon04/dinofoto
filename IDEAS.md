@@ -10,7 +10,7 @@ Effort: **S** small (hours), **M** medium (a day or two), **L** large.
 
 - **Edit existing files** (M/L, ●7 “table view with date, categories … without opening each file”): load a category or your uploads into the same table, edit categories, captions and statements, save in one go.
 - **Sort categories by date taken** (S, ●4): option to add a date sort key (`{{DEFAULTSORT:2024-05-01 12:00}}` or per category), so category pages list photos chronologically.
-- **Geotag from GPX** (M, ●1 “import gpx, kml”): match capture times to a GPX track (with camera clock offset); export the batch as KML/GPX.
+- **Geotag from GPX** (M, ●1 “import gpx, kml”): match capture times to a GPX track (with camera clock offset); export as GPX (KML is done).
 - **Extra templates** (S, ●1 “personality rights every time”): a column and default for additional templates, e.g. `{{Personality rights}}`, kept in presets.
 - **Create missing categories** (M, ●3 “find and create categories automatically”): with a parent category and optionally a Wikidata infobox.
 - **Pages from templates** (M, ●5 “standardized pages from templates, e.g. galleries”): create a gallery or category page for the batch.
@@ -72,4 +72,4 @@ Out of scope (Commons itself): search (●3), map search, MediaViewer speed (●
 
 ## Done
 
-Photo of the row being edited. Labels of Wikidata items. Object location. Titles, descriptions and keyword categories from EXIF/IPTC/XMP. Title blacklist, protected titles and UploadWizard’s title rules. Chunked and asynchronous upload, stashing first to show server warnings (incl. deleted duplicates). Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.
+KML export and map of the uploaded batch. Photo of the row being edited. Labels of Wikidata items. Object location. Titles, descriptions and keyword categories from EXIF/IPTC/XMP. Title blacklist, protected titles and UploadWizard’s title rules. Chunked and asynchronous upload, stashing first to show server warnings (incl. deleted duplicates). Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.

@@ -172,5 +172,7 @@
   "field-objectLatitude": "Object latitude",
   "field-objectLongitude": "Object longitude",
   "property-P9149": "Coordinates of depicted place",
-  "describe-show-photo": "Show photo while editing"
+  "describe-show-photo": "Show photo while editing",
+  "upload-download-kml": "Download KML",
+  "upload-show-map": "Show on a map"
 }
