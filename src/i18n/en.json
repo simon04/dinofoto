@@ -140,5 +140,10 @@
   "bulk-mode-replace": "Replace",
   "bulk-mode-append": "Append (categories and depicts separated by ;)",
   "bulk-mode-empty": "Keep, fill only empty cells",
-  "bulk-apply": "Apply to {{PLURAL:$1|$1 file|$1 files}}"
+  "bulk-apply": "Apply to {{PLURAL:$1|$1 file|$1 files}}",
+  "upload-your-files": "Your uploads",
+  "upload-copy-gallery": "Copy gallery",
+  "upload-copy-qs": "Copy QuickStatements",
+  "upload-copied": "Copied a gallery of {{PLURAL:$1|$1 file|$1 files}}.",
+  "upload-copied-qs": "Copied QuickStatements for the structured data, e.g. to retry failed ones."
 }

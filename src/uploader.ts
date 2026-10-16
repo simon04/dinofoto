@@ -2,7 +2,7 @@ import { createGlobalState, useLocalStorage } from "@vueuse/core";
 import { computed, reactive, ref } from "vue";
 import { useAuth } from "./auth";
 import { t } from "./i18n";
-import { saveStructuredData, structuredData } from "./sdc";
+import { mediaInfoId, saveStructuredData, structuredData } from "./sdc";
 import { target } from "./wiki";
 import { usePhotos, type Item } from "./store";
 import {
@@ -18,6 +18,10 @@ export interface UploadState {
   message?: string;
   /** stashed file of an upload stopped by warnings */
   filekey?: string;
+  /** MediaInfo ID of the uploaded file, once known */
+  mid?: string;
+  /** title of the uploaded file, without `File:` */
+  filename?: string;
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -83,7 +87,11 @@ export const useUploader = createGlobalState(() => {
           auth(),
         );
         if (result.result === "Success") {
-          Object.assign(state, { state: "done", filekey: undefined });
+          Object.assign(state, {
+            state: "done",
+            filekey: undefined,
+            filename: result.filename,
+          });
           await saveSdc(item, result.filename, token, state);
         } else {
           Object.assign(state, {
@@ -126,8 +134,9 @@ export const useUploader = createGlobalState(() => {
     );
     if (!data) return;
     try {
+      state.mid = await mediaInfoId(filename, auth());
       await saveStructuredData(
-        filename,
+        state.mid,
         data,
         { token, summary: comment.value },
         auth(),

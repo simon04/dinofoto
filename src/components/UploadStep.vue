@@ -64,6 +64,28 @@
       :value="summary.bytes"
     />
 
+    <div v-if="summary.done" class="df-results">
+      <a
+        :href="`https://${target.host}/wiki/Special:ListFiles/${encodeURIComponent(username ?? '')}`"
+        target="_blank"
+        rel="external noopener"
+      >
+        {{ t("upload-your-files") }}
+      </a>
+      <cdx-button size="small" @click="copyGallery">
+        <cdx-icon :icon="cdxIconImageGallery" size="small" />
+        {{ t("upload-copy-gallery") }}
+      </cdx-button>
+      <cdx-button
+        v-if="qsLines.length"
+        size="small"
+        @click="copyQuickStatements"
+      >
+        <cdx-icon :icon="cdxIconCopy" size="small" />
+        {{ t("upload-copy-qs") }}
+      </cdx-button>
+    </div>
+
     <table class="df-table df-uploads">
       <tbody>
         <tr
@@ -82,7 +104,17 @@
               File:{{ item.title }}
             </a>
             <template v-else>File:{{ item.title }}</template>
-            <div class="df-path">{{ item.photo.path }}</div>
+            <div class="df-path">
+              {{ item.photo.path }}
+              <a
+                v-if="stateOf(item).mid"
+                :href="`https://${target.host}/wiki/Special:EntityPage/${stateOf(item).mid}`"
+                target="_blank"
+                rel="external noopener"
+              >
+                <code>{{ stateOf(item).mid }}</code>
+              </a>
+            </div>
           </td>
           <td class="df-num">{{ formatSize(item.photo.file.size) }}</td>
           <td>
@@ -115,7 +147,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useEventListener, useWakeLock } from "@vueuse/core";
+import { useClipboard, useEventListener, useWakeLock } from "@vueuse/core";
 import {
   CdxButton,
   CdxField,
@@ -127,6 +159,8 @@ import {
   useToast,
 } from "@wikimedia/codex";
 import {
+  cdxIconCopy,
+  cdxIconImageGallery,
   cdxIconLogIn,
   cdxIconPause,
   cdxIconUpload,
@@ -137,6 +171,9 @@ import { fileUrl, target, WIKIS } from "../wiki";
 import { formatSize } from "../format";
 import { useUploader, type UploadState } from "../uploader";
 import PhotoThumb from "./PhotoThumb.vue";
+import { parseCaptions } from "../meta";
+import { quickStatements, statements } from "../sdc";
+import { usePhotos } from "../store";
 
 const { username, login } = useAuth();
 const {
@@ -164,6 +201,44 @@ const targetId = computed({
     target.value = WIKIS.find((wiki) => wiki.id === id)!;
   },
 });
+
+const { defaults } = usePhotos();
+const done = computed(() =>
+  queue.value.filter((item) => stateOf(item).state === "done"),
+);
+const { copy } = useClipboard({ legacy: true });
+
+/** `<gallery>` of the uploaded files, with their captions. */
+async function copyGallery() {
+  const lines = done.value.map((item) => {
+    const caption = Object.values(
+      parseCaptions(item.meta.caption, defaults.value.language),
+    )[0];
+    const title = stateOf(item).filename ?? item.title;
+    return caption ? `File:${title}|${caption}` : `File:${title}`;
+  });
+  await copy(`<gallery>\n${lines.join("\n")}\n</gallery>\n`);
+  toast.success(t("upload-copied", lines.length));
+}
+
+/** structured data of the uploaded files with a known MediaInfo ID */
+const qsLines = computed(() =>
+  target.value.wikidata
+    ? done.value.flatMap((item) => {
+        const { mid } = stateOf(item);
+        if (!mid) return [];
+        return quickStatements(
+          mid,
+          parseCaptions(item.meta.caption, defaults.value.language),
+          statements(item.meta, defaults.value, username.value),
+        );
+      })
+    : [],
+);
+async function copyQuickStatements() {
+  await copy(qsLines.value.join("\n") + "\n");
+  toast.success(t("upload-copied-qs"));
+}
 
 const remaining = computed(
   () =>
@@ -237,6 +312,16 @@ async function onLogin() {
   width: 100%;
   margin: 0 0 var(--spacing-150);
   accent-color: var(--background-color-progressive);
+}
+.df-results {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-75);
+  margin-bottom: var(--spacing-100);
+}
+.df-path code {
+  margin-inline-start: var(--spacing-50);
 }
 .df-uploads {
   width: 100%;

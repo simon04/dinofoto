@@ -210,34 +210,75 @@ export function structuredData(
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /**
- * Save structured data of an uploaded file. The MediaInfo ID is `M` + page
- * ID, looked up with a few retries: replicas may lag behind the upload.
+ * MediaInfo ID (`M` + page ID) of a file, looked up with a few retries:
+ * replicas may lag behind the upload.
  */
-export async function saveStructuredData(
-  title: string,
-  data: object,
-  { token, summary }: { token: string; summary: string },
-  auth: Auth,
-): Promise<void> {
-  let pageid: number | undefined;
-  for (let attempt = 0; !pageid && attempt < 5; attempt++) {
+export async function mediaInfoId(title: string, auth: Auth): Promise<string> {
+  for (let attempt = 0; attempt < 5; attempt++) {
     if (attempt) await sleep(2000 * attempt);
     const json = await apiPost<{
       query: { pages: { pageid?: number }[] };
     }>({ action: "query", titles: `File:${title}`, prop: "info" }, auth);
-    pageid = json.query.pages[0]?.pageid;
+    const pageid = json.query.pages[0]?.pageid;
+    if (pageid) return `M${pageid}`;
   }
-  if (!pageid) throw new Error(`File:${title} not found`);
+  throw new Error(`File:${title} not found`);
+}
+
+/** Save structured data of a file (`wbeditentity`). */
+export async function saveStructuredData(
+  id: string,
+  data: object,
+  { token, summary }: { token: string; summary: string },
+  auth: Auth,
+): Promise<void> {
   await apiPost(
-    {
-      action: "wbeditentity",
-      id: `M${pageid}`,
-      data: JSON.stringify(data),
-      summary,
-      token,
-    },
+    { action: "wbeditentity", id, data: JSON.stringify(data), summary, token },
     auth,
   );
+}
+
+/** Value of a snak in QuickStatements syntax. */
+function qsValue(snak: Snak): string {
+  if (snak.snaktype === "somevalue") return "somevalue";
+  const { type, value } = snak.datavalue!;
+  const v = value as Record<string, string>;
+  switch (type) {
+    case "wikibase-entityid":
+      return v.id;
+    case "time":
+      return `${v.time}/${v.precision}`;
+    case "globecoordinate":
+      return `@${v.latitude}/${v.longitude}`;
+    case "quantity":
+      return `${v.amount}U${v.unit.split("/").pop()!.slice(1)}`;
+    default:
+      return JSON.stringify(value);
+  }
+}
+
+/**
+ * QuickStatements (v1 syntax) for structured data of a file, e.g. to save it
+ * with https://quickstatements.toolforge.org/ if saving failed.
+ */
+export function quickStatements(
+  id: string,
+  captions: Record<string, string>,
+  list: Statement[],
+): string[] {
+  return [
+    ...Object.entries(captions).map(
+      ([lang, text]) => `${id}\tL${lang}\t${JSON.stringify(text)}`,
+    ),
+    ...list.map(({ mainsnak, qualifiers }) =>
+      [
+        id,
+        mainsnak.property,
+        qsValue(mainsnak),
+        ...(qualifiers ?? []).flatMap((q) => [q.property, qsValue(q)]),
+      ].join("\t"),
+    ),
+  ];
 }
 
 /** Wikidata items matching a text, as `[id, label, description]`. */

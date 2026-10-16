@@ -8,7 +8,7 @@ import {
   splitItems,
 } from "./meta";
 import { captionsFromDescription } from "./pattern";
-import { statements, structuredData, timeValue } from "./sdc";
+import { quickStatements, statements, structuredData, timeValue } from "./sdc";
 import { COMMONS, WIKIS } from "./wiki";
 
 // no license: only the statements under test
@@ -161,5 +161,30 @@ describe("captions", () => {
         de: { language: "de", value: "Tuchhallen" },
       },
     });
+  });
+});
+
+describe("quickStatements", () => {
+  it("writes captions, statements and qualifiers", () => {
+    const list = statements(
+      {
+        ...emptyMeta(),
+        depicts: "Q943",
+        date: "2012-06",
+        latitude: "50.06",
+        longitude: "19.93",
+        heading: "45",
+      },
+      { ...initialDefaults("en"), license: "" },
+      "Yarl",
+    );
+    expect(quickStatements("M5", { en: 'A "b"' }, list)).toEqual([
+      'M5\tLen\t"A \\"b\\""',
+      "M5\tP180\tQ943",
+      "M5\tP571\t+2012-06-00T00:00:00Z/10",
+      "M5\tP1259\t@50.06/19.93\tP7787\t+45U28390",
+      "M5\tP7482\tQ66458942",
+      'M5\tP170\tsomevalue\tP2093\t"Yarl"\tP4174\t"Yarl"\tP2699\t"https://commons.wikimedia.org/wiki/User:Yarl"',
+    ]);
   });
 });
