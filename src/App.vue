@@ -151,8 +151,8 @@ textarea.df-mono {
 }
 .df-table th,
 .df-table td {
-  border-bottom: 1px solid var(--border-color-subtle);
-  padding: 0.25rem 0.5rem;
+  border-bottom: var(--border-width-base) solid var(--border-color-subtle);
+  padding: var(--spacing-50) var(--spacing-75);
   text-align: start;
   vertical-align: middle;
 }
@@ -169,35 +169,42 @@ textarea.df-mono {
 </style>
 
 <style scoped>
+/* spacing follows the Codex scale:
+   https://doc.wikimedia.org/codex/latest/design-tokens/spacing.html */
 .df-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.5rem 1rem;
+  gap: var(--spacing-100);
+  padding: var(--spacing-75) var(--spacing-150);
+  border-bottom: var(--border-width-base) solid var(--border-color-subtle);
 }
 .df-logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1.25rem;
-  font-weight: bold;
+  gap: var(--spacing-50);
+  font-size: var(--font-size-x-large);
+  font-weight: var(--font-weight-bold);
 }
 .df-intro {
   flex: 1;
   color: var(--color-subtle);
+}
+.df-main {
+  max-width: none;
+  padding: var(--spacing-150);
+}
+/* room between the tab list and the step content */
+.df-main :deep(.cdx-tab) {
+  padding-top: var(--spacing-150);
 }
 .df-next {
   position: sticky;
   bottom: 0;
   display: flex;
   justify-content: flex-end;
-  padding: 0.75rem 0;
+  padding: var(--spacing-75) 0;
+  margin-top: var(--spacing-150);
   background: var(--background-color-base);
-  border-top: 1px solid var(--border-color-subtle);
-  margin-top: 1rem;
-}
-.df-main {
-  max-width: none;
-  padding: 1rem;
+  border-top: var(--border-width-base) solid var(--border-color-subtle);
 }
 </style>
