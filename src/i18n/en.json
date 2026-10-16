@@ -168,5 +168,8 @@
   "problem-title-short": "The file name is shorter than 5 characters.",
   "problem-title-protected": "This file name is protected against uploads.",
   "problem-title-blacklisted": "The file name is not allowed: $1",
-  "categories-keyword": "keyword"
+  "categories-keyword": "keyword",
+  "field-objectLatitude": "Object latitude",
+  "field-objectLongitude": "Object longitude",
+  "property-P9149": "Coordinates of depicted place"
 }

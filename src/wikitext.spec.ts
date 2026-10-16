@@ -116,3 +116,14 @@ describe("UploadWizard title rules", () => {
     );
   });
 });
+
+describe("object location", () => {
+  it("adds {{Object location}}", () => {
+    expect(
+      pageText(
+        { ...meta, objectLatitude: "50.0614", objectLongitude: "19.9366" },
+        defaults,
+      ),
+    ).toContain("{{Object location|50.0614|19.9366}}\n");
+  });
+});

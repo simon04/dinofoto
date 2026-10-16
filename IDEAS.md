@@ -48,7 +48,6 @@ Out of scope (Commons itself): search (●3), map search, MediaViewer speed (●
 
 - **Map picker** (M): set or correct the location of photos without GPS on an OpenStreetMap map.
 - **Larger preview while typing** (S): the photo of the focused row next to the table.
-- **Object location** (S, UploadWizard): `{{Object location}}` from `GPSDest*` EXIF; heading from `GPSDestBearing` as fallback.
 - **GPS privacy** (M, UploadWizard only warns): remove GPS from the EXIF before uploading, per file or batch, or leave out the location.
 - **More EXIF** (S): camera model, focal length, orientation-aware thumbnails.
 - **Template choice** (S): `{{Photograph}}` or `{{Artwork}}` instead of `{{Information}}`; an “other information” wikitext column.
@@ -75,4 +74,4 @@ Out of scope (Commons itself): search (●3), map search, MediaViewer speed (●
 
 ## Done
 
-Titles, descriptions and keyword categories from EXIF/IPTC/XMP. Title blacklist, protected titles and UploadWizard’s title rules. Chunked and asynchronous upload, stashing first to show server warnings (incl. deleted duplicates). Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.
+Object location. Titles, descriptions and keyword categories from EXIF/IPTC/XMP. Title blacklist, protected titles and UploadWizard’s title rules. Chunked and asynchronous upload, stashing first to show server warnings (incl. deleted duplicates). Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.

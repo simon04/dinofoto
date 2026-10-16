@@ -12,6 +12,14 @@ export function formatDate(date: Date): string {
 const round = (n: number, digits: number) => String(+n.toFixed(digits));
 
 /** Date taken, location and camera heading from EXIF. */
+/** Decimal degrees of EXIF degrees/minutes/seconds and a reference (S, W negative). */
+export function degrees(dms?: number[] | number, ref?: string) {
+  const [d = NaN, m = 0, s = 0] = typeof dms === "number" ? [dms] : (dms ?? []);
+  const value = d + m / 60 + s / 3600;
+  if (!Number.isFinite(value)) return undefined;
+  return /^[SW]/i.test(ref ?? "") ? -value : value;
+}
+
 /** Text of an XMP/IPTC value: plain, language alternatives or a list. */
 function text(value: unknown): string {
   if (typeof value === "string") return value.trim();
@@ -30,7 +38,12 @@ const useful = (value: string) =>
 /** Metadata of a photo from EXIF, IPTC and XMP. */
 export interface PhotoMetadata extends Pick<
   Meta,
-  "date" | "latitude" | "longitude" | "heading"
+  | "date"
+  | "latitude"
+  | "longitude"
+  | "heading"
+  | "objectLatitude"
+  | "objectLongitude"
 > {
   /** title (IPTC object name, XMP `dc:title`) */
   title: string;
@@ -47,6 +60,11 @@ export async function readExif(file: File): Promise<PhotoMetadata> {
     latitude?: number;
     longitude?: number;
     GPSImgDirection?: number;
+    GPSDestBearing?: number;
+    GPSDestLatitude?: number[];
+    GPSDestLatitudeRef?: string;
+    GPSDestLongitude?: number[];
+    GPSDestLongitudeRef?: string;
     ImageDescription?: unknown;
     ObjectName?: unknown;
     Caption?: unknown;
@@ -68,6 +86,11 @@ export async function readExif(file: File): Promise<PhotoMetadata> {
   const date = exif.DateTimeOriginal ?? exif.CreateDate;
   const located =
     Number.isFinite(exif.latitude) && Number.isFinite(exif.longitude);
+  const direction = Number.isFinite(exif.GPSImgDirection)
+    ? exif.GPSImgDirection
+    : exif.GPSDestBearing;
+  const objectLat = degrees(exif.GPSDestLatitude, exif.GPSDestLatitudeRef);
+  const objectLon = degrees(exif.GPSDestLongitude, exif.GPSDestLongitudeRef);
   const keywords = [exif.Keywords, exif.subject]
     .flatMap((k) => (Array.isArray(k) ? k : k ? [k] : []))
     .map(text)
@@ -76,10 +99,10 @@ export async function readExif(file: File): Promise<PhotoMetadata> {
     date: date instanceof Date && !isNaN(+date) ? formatDate(date) : "",
     latitude: located ? round(exif.latitude!, 6) : "",
     longitude: located ? round(exif.longitude!, 6) : "",
-    heading:
-      located && Number.isFinite(exif.GPSImgDirection)
-        ? round(exif.GPSImgDirection!, 1)
-        : "",
+    // direction of the camera, else towards the photographed object
+    heading: located && Number.isFinite(direction) ? round(direction!, 1) : "",
+    objectLatitude: objectLat === undefined ? "" : round(objectLat, 6),
+    objectLongitude: objectLon === undefined ? "" : round(objectLon, 6),
     title: useful(text(exif.title) || text(exif.ObjectName)),
     description: useful(
       text(exif.description) ||

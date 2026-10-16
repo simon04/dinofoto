@@ -14,6 +14,9 @@ export interface Meta {
   longitude: string;
   /** camera heading in degrees */
   heading: string;
+  /** location of the photographed object ({{Object location}}) */
+  objectLatitude: string;
+  objectLongitude: string;
   author: string;
   source: string;
   license: string;
@@ -36,6 +39,8 @@ export const FIELDS: Field[] = [
   "latitude",
   "longitude",
   "heading",
+  "objectLatitude",
+  "objectLongitude",
   "author",
   "source",
   "license",
@@ -77,6 +82,8 @@ export const emptyMeta = (): Meta => ({
   latitude: "",
   longitude: "",
   heading: "",
+  objectLatitude: "",
+  objectLongitude: "",
   author: "",
   source: "",
   license: "",

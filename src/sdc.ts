@@ -127,6 +127,25 @@ export function statements(
           }
         : {}),
     });
+  const [objLat, objLon] = [m.objectLatitude, m.objectLongitude].map((v) =>
+    v.trim() === "" ? NaN : Number(v),
+  );
+  if (Math.abs(objLat!) <= 90 && Math.abs(objLon!) <= 180)
+    result.push({
+      mainsnak: {
+        snaktype: "value",
+        property: "P9149",
+        datavalue: {
+          type: "globecoordinate",
+          value: {
+            latitude: objLat,
+            longitude: objLon,
+            precision: 0.000001,
+            globe: "http://www.wikidata.org/entity/Q2",
+          },
+        },
+      },
+    });
   const licenses = LICENSES.filter(([re]) => re.test(m.license)).map(
     ([, id]) => id,
   );

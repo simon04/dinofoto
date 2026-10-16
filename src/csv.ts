@@ -67,6 +67,12 @@ const ALIASES: Record<string, Field | typeof FILE_COLUMN> = {
   lon: "longitude",
   lng: "longitude",
   direction: "heading",
+  objectlatitude: "objectLatitude",
+  objectlongitude: "objectLongitude",
+  "object latitude": "objectLatitude",
+  "object longitude": "objectLongitude",
+  "object lat": "objectLatitude",
+  "object lon": "objectLongitude",
   permission: "license",
 };
 

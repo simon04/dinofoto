@@ -188,3 +188,13 @@ describe("quickStatements", () => {
     ]);
   });
 });
+
+describe("object location", () => {
+  it("adds coordinates of the depicted place", () => {
+    const list = statements(
+      { ...emptyMeta(), objectLatitude: "50.06", objectLongitude: "19.93" },
+      { ...initialDefaults("en"), license: "", source: "" },
+    );
+    expect(list.map((s) => s.mainsnak.property)).toEqual(["P9149"]);
+  });
+});

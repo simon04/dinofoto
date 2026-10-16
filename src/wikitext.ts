@@ -79,6 +79,10 @@ export function pageText(
     const heading = isNumber(m.heading) ? `|heading:${+m.heading}` : "";
     lines.push(`{{Location|${+m.latitude}|${+m.longitude}${heading}}}`);
   }
+  if (isNumber(m.objectLatitude) && isNumber(m.objectLongitude))
+    lines.push(
+      `{{Object location|${+m.objectLatitude}|${+m.objectLongitude}}}`,
+    );
   lines.push("", "=={{int:license-header}}==", m.license, "");
   for (const category of splitCategories(m.categories))
     lines.push(`[[Category:${category}]]`);
@@ -187,6 +191,16 @@ export function problems(
       isNumber(m.longitude) &&
       Math.abs(+m.latitude) <= 90 &&
       Math.abs(+m.longitude) <= 180
+    )
+  )
+    result.push("location-invalid");
+  if (
+    (m.objectLatitude.trim() || m.objectLongitude.trim()) &&
+    !(
+      isNumber(m.objectLatitude) &&
+      isNumber(m.objectLongitude) &&
+      Math.abs(+m.objectLatitude) <= 90 &&
+      Math.abs(+m.objectLongitude) <= 180
     )
   )
     result.push("location-invalid");
