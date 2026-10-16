@@ -9,7 +9,7 @@ import {
   ApiError,
   formatWarnings,
   getCsrfToken,
-  upload,
+  uploadFile,
   type Auth,
 } from "./upload";
 
@@ -18,6 +18,8 @@ export interface UploadState {
   message?: string;
   /** stashed file of an upload stopped by warnings */
   filekey?: string;
+  /** bytes uploaded of a chunked upload */
+  bytes?: number;
   /** MediaInfo ID of the uploaded file, once known */
   mid?: string;
   /** title of the uploaded file, without `File:` */
@@ -67,14 +69,19 @@ export const useUploader = createGlobalState(() => {
 
   async function uploadItem(item: Item, ignorewarnings = false) {
     const key = keyOf(item);
-    states[key] = { ...stateOf(item), state: "uploading", message: undefined };
+    states[key] = {
+      ...stateOf(item),
+      state: "uploading",
+      message: undefined,
+      bytes: 0,
+    };
     // the reactive proxy, not the object assigned above
     const state = states[key]!;
     for (let attempt = 1; ; attempt++) {
       try {
         // fetched per file: tokens of renewed sessions differ
         const token = await getCsrfToken(auth());
-        const result = await upload(
+        const result = await uploadFile(
           {
             file: item.photo.file,
             filekey: ignorewarnings ? state.filekey : undefined,
@@ -85,6 +92,7 @@ export const useUploader = createGlobalState(() => {
           },
           token,
           auth(),
+          (bytes) => (state.bytes = bytes),
         );
         if (result.result === "Success") {
           Object.assign(state, {
@@ -174,8 +182,9 @@ export const useUploader = createGlobalState(() => {
   const summary = computed(() => {
     const result = { done: 0, failed: 0, warning: 0, bytes: 0, total: 0 };
     for (const item of queue.value) {
-      const { state } = stateOf(item);
+      const { state, bytes } = stateOf(item);
       result.total += item.photo.file.size;
+      if (state === "uploading") result.bytes += bytes ?? 0;
       if (state === "done") {
         result.done++;
         result.bytes += item.photo.file.size;

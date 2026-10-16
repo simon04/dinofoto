@@ -54,7 +54,7 @@ The workflow is split into four steps (tabs, each with the number of files, and 
 - Pause after the current file, resume later; uploaded files are not uploaded again
 - Progress by files and bytes, links to the uploaded files
 - Keeps the screen awake (Wake Lock API) and warns before closing the tab while uploading
-- Files larger than 100 MiB are rejected in the review (chunked upload is not implemented yet)
+- **Large files** (from 10 MiB) are uploaded in 5 MiB chunks to the stash, assembled and published asynchronously (`stash=1`, `offset`, `async=1`, polling `checkstatus`), like UploadWizard; each chunk is retried on network errors; progress per file in percent; up to 5 GiB (the Commons limit)
 
 ### Languages and design
 

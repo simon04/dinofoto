@@ -82,7 +82,7 @@
   "problem-date-missing": "No date.",
   "problem-categories-missing": "No categories.",
   "problem-location-invalid": "Latitude and longitude must be numbers (−90…90, −180…180).",
-  "problem-file-large": "Files larger than 100 MiB need a chunked upload, which is not supported yet.",
+  "problem-file-large": "Files larger than 5 GiB cannot be uploaded to Commons.",
   "step-upload": "4. Upload ($1)",
   "upload-unavailable": "Uploading needs a login, which is only available at",
   "upload-login": "Log in with your Wikimedia account to upload.",

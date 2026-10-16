@@ -85,8 +85,8 @@ export function pageText(
   return lines.join("\n").trimEnd() + "\n";
 }
 
-/** Larger files need a chunked upload, not supported yet. */
-export const MAX_SIZE = 100 * 1024 * 1024;
+/** Maximum file size on Commons (`maxuploadsize`), with chunked uploads. */
+export const MAX_SIZE = 5 * 1024 * 1024 * 1024;
 
 export type Problem =
   | "title-empty"

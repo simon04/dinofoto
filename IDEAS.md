@@ -24,7 +24,6 @@ Out of scope (Commons itself): search (●3), map search, MediaViewer speed (●
 
 ## Uploading
 
-- **Chunked and asynchronous upload** (M, UploadWizard): stash files over 100 MiB in ~5 MiB chunks (`action=upload&stash=1&offset=…&filekey=…`), publish with `async=1` above 10 MiB and poll `checkstatus`; retry single failed chunks.
 - **Stash first, publish later** (M, UploadWizard): stash every file first to get the server’s warnings early (`duplicate`, `duplicate-archive` for deleted files, `duplicateversions`), then publish with `filekey`; lets the review show them before anything is published.
 - **Parallel uploads** (S, UploadWizard): up to 3 at once instead of strictly one after another.
 - **Per-file progress bar** (S): `XMLHttpRequest` upload progress for large files.
@@ -82,4 +81,4 @@ Out of scope (Commons itself): search (●3), map search, MediaViewer speed (●
 
 ## Done
 
-Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.
+Chunked and asynchronous upload. Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.

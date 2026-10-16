@@ -120,6 +120,18 @@
           <td>
             <cdx-info-chip :status="chipStatus[stateOf(item).state]">
               {{ t(`upload-state-${stateOf(item).state}`) }}
+              <template
+                v-if="
+                  stateOf(item).state === 'uploading' && stateOf(item).bytes
+                "
+              >
+                {{
+                  Math.floor(
+                    (100 * stateOf(item).bytes!) / item.photo.file.size,
+                  )
+                }}
+                %
+              </template>
             </cdx-info-chip>
           </td>
           <td class="df-message">

@@ -63,7 +63,7 @@ export async function getCsrfToken(auth: Auth): Promise<string> {
 }
 
 export type UploadResult =
-  | { result: "Success"; filename: string }
+  | { result: "Success"; filename: string; filekey?: string }
   /** not uploaded, e.g. `exists` or `duplicate`; stashed as `filekey` */
   | { result: "Warning"; warnings: Record<string, unknown>; filekey?: string };
 
@@ -103,6 +103,146 @@ export async function upload(
     auth,
   );
   return json.upload;
+}
+
+/** Chunk size of chunked uploads, as in UploadWizard. */
+export const CHUNK_SIZE = 5 * 1024 * 1024;
+/** Larger files are uploaded in chunks and assembled asynchronously. */
+export const CHUNKED_FROM = 2 * CHUNK_SIZE;
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Retry a request on network errors (not on API errors). */
+async function retry<T>(request: () => Promise<T>, attempts = 4): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await request();
+    } catch (e) {
+      if (e instanceof ApiError || attempt >= attempts) throw e;
+      await sleep(2000 * attempt);
+    }
+  }
+}
+
+type Polled = UploadResult | { result: "Poll" | "Continue"; filekey: string };
+
+/** Wait for an asynchronous upload step (`async=1`) to finish. */
+async function poll(
+  filekey: string,
+  token: string,
+  auth: Auth,
+): Promise<UploadResult> {
+  // assembling or publishing gigabytes may take minutes
+  for (let i = 0; i < 600; i++) {
+    await sleep(Math.min(1000 + i * 500, 5000));
+    const json = await retry(() =>
+      apiPost<{ upload: Polled & { stage?: string } }>(
+        { action: "upload", checkstatus: "1", filekey, token },
+        auth,
+      ),
+    );
+    if (json.upload.result !== "Poll") return json.upload as UploadResult;
+  }
+  throw new Error("Timeout");
+}
+
+/**
+ * Upload a large file in chunks to the stash (`stash=1`), like UploadWizard;
+ * each chunk is retried on network errors. Returns the `filekey`.
+ */
+export async function stashChunked(
+  file: File,
+  filename: string,
+  token: string,
+  auth: Auth,
+  onProgress?: (bytes: number) => void,
+): Promise<string> {
+  let filekey: string | undefined;
+  let offset = 0;
+  while (offset < file.size) {
+    const chunk = file.slice(offset, offset + CHUNK_SIZE);
+    const last = offset + chunk.size >= file.size;
+    const json = await retry(() =>
+      apiPost<{ upload: Polled & { offset?: number } }>(
+        {
+          action: "upload",
+          stash: "1",
+          // warnings are checked when publishing
+          ignorewarnings: "1",
+          filename,
+          filesize: String(file.size),
+          offset: String(offset),
+          chunk: new File([chunk], filename),
+          token,
+          ...(filekey ? { filekey } : {}),
+          ...(last ? { async: "1" } : {}),
+        },
+        auth,
+      ),
+    );
+    const result = json.upload;
+    if ("filekey" in result && result.filekey) filekey = result.filekey;
+    offset = last ? file.size : (result.offset ?? offset + chunk.size);
+    onProgress?.(offset);
+    if (last && result.result === "Poll") {
+      const done = await poll(filekey!, token, auth);
+      if (done.result !== "Success") throw new Error(JSON.stringify(done));
+    }
+  }
+  return filekey!;
+}
+
+/**
+ * Upload a file: small ones directly, large ones in chunks to the stash and
+ * then published asynchronously. Warnings stop the upload unless
+ * `ignorewarnings`; the file is stashed then (`filekey`).
+ */
+export async function uploadFile(
+  {
+    file,
+    filekey,
+    filename,
+    text,
+    comment,
+    ignorewarnings = false,
+  }: {
+    file: File;
+    filekey?: string;
+    filename: string;
+    text: string;
+    comment: string;
+    ignorewarnings?: boolean;
+  },
+  token: string,
+  auth: Auth,
+  onProgress?: (bytes: number) => void,
+): Promise<UploadResult> {
+  if (!filekey && file.size < CHUNKED_FROM)
+    return upload(
+      { file, filename, text, comment, ignorewarnings },
+      token,
+      auth,
+    );
+  filekey ??= await stashChunked(file, filename, token, auth, onProgress);
+  const json = await apiPost<{ upload: Polled }>(
+    {
+      action: "upload",
+      filekey,
+      filename,
+      text,
+      comment,
+      token,
+      async: "1",
+      ...(ignorewarnings ? { ignorewarnings: "1" } : {}),
+    },
+    auth,
+  );
+  const result =
+    json.upload.result === "Poll"
+      ? await poll(filekey, token, auth)
+      : (json.upload as UploadResult);
+  // warnings of a stashed file: publish it later with this key
+  return result.result === "Warning" ? { filekey, ...result } : result;
 }
 
 /** Human-readable warnings of a failed upload. */
