@@ -26,8 +26,8 @@ const { stop } = useIntersectionObserver(el, async ([entry]) => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 4rem;
-  height: 3rem;
+  width: var(--size-400);
+  height: var(--size-300);
   background: var(--background-color-interactive-subtle);
   border-radius: var(--border-radius-base);
   overflow: hidden;

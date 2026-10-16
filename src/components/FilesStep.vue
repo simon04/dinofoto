@@ -118,15 +118,25 @@ async function onOpen() {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+}
+.df-toolbar {
+  gap: var(--spacing-100);
+  margin-bottom: var(--spacing-150);
+}
+.df-summary {
+  gap: var(--spacing-50);
+  margin-bottom: var(--spacing-100);
 }
 .df-hint {
+  margin: 0;
+  max-width: var(--size-4000);
   color: var(--color-subtle);
-  max-width: 40rem;
+  line-height: var(--line-height-content);
 }
 .df-progress {
+  display: block;
   width: 100%;
+  margin-bottom: var(--spacing-150);
   accent-color: var(--background-color-progressive);
 }
 </style>
