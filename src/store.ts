@@ -10,6 +10,7 @@ import { pool } from "./pool";
 import { fileKey, scanDirectory, sha1 } from "./scan";
 import {
   ERRORS,
+  MAX_SIZE,
   fileTitle,
   normalizeTitle,
   pageText,
@@ -192,6 +193,7 @@ export const usePhotos = createGlobalState(() => {
         item.problems.push("title-duplicate");
       if (existingTitles.value.has(item.title))
         item.problems.push("title-exists");
+      if (item.photo.file.size > MAX_SIZE) item.problems.push("file-large");
       item.invalid = item.problems.some((p) => ERRORS.has(p));
     }
     return all;

@@ -30,6 +30,13 @@
       >
         <ReviewStep v-if="step === 'review'" />
       </cdx-tab>
+      <cdx-tab
+        name="upload"
+        :label="t('step-upload', queue.length)"
+        :disabled="!queue.length"
+      >
+        <UploadStep />
+      </cdx-tab>
     </cdx-tabs>
   </main>
   <cdx-toast-container />
@@ -46,9 +53,12 @@ import UserMenu from "./components/UserMenu.vue";
 import FilesStep from "./components/FilesStep.vue";
 import DescribeStep from "./components/DescribeStep.vue";
 import ReviewStep from "./components/ReviewStep.vue";
+import UploadStep from "./components/UploadStep.vue";
+import { useUploader } from "./uploader";
 import { usePhotos } from "./store";
 
 const { newPhotos, items } = usePhotos();
+const { queue } = useUploader();
 
 const step = ref("files");
 

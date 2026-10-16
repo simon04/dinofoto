@@ -78,6 +78,9 @@ export function pageText(
   return lines.join("\n").trimEnd() + "\n";
 }
 
+/** Larger files need a chunked upload, not supported yet. */
+export const MAX_SIZE = 100 * 1024 * 1024;
+
 export type Problem =
   | "title-empty"
   | "title-chars"
@@ -86,6 +89,7 @@ export type Problem =
   | "title-duplicate"
   | "title-exists"
   | "title-camera"
+  | "file-large"
   | "license-missing"
   | "author-missing"
   | "source-missing"
@@ -101,6 +105,7 @@ export const ERRORS = new Set<Problem>([
   "title-long",
   "title-duplicate",
   "title-exists",
+  "file-large",
   "license-missing",
   "author-missing",
   "source-missing",

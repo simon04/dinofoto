@@ -36,6 +36,17 @@ The workflow is split into steps (tabs), so that 100+ photos can be prepared and
   - warnings: camera-generated names (`IMG_1234`, `DSC…`, `PXL…`), file extension in the name, missing description, date or categories, invalid coordinates
 - Counts of files ready, with errors and with warnings
 
+### 4. Upload
+
+- Log in with your Wikimedia account (OAuth 2.0 with PKCE in a popup, so the opened directory and edits are kept); only on https://dinofoto.toolforge.org/, where the registered callback is served; runs entirely in the browser, the token is kept in sessionStorage and renewed with the refresh token
+- One click uploads all valid files one after another (`action=upload`, multipart, `assertuser`), with an editable upload summary; no confirmation per file
+- Runs unattended: network errors, expired tokens and rate limits are retried with backoff; files stopped by warnings (e.g. `exists`, `duplicate`) or errors are reported and skipped, the batch continues
+- Afterwards, per file: “Upload anyway” for warnings (publishes the stashed file, `filekey` + `ignorewarnings`, without uploading it again) and “Retry” for errors
+- Pause after the current file, resume later; uploaded files are not uploaded again
+- Progress by files and bytes, links to the uploaded files
+- Keeps the screen awake (Wake Lock API) and warns before closing the tab while uploading
+- Files larger than 100 MiB are rejected in the review (chunked upload is not implemented yet)
+
 ## Development
 
 ```sh
