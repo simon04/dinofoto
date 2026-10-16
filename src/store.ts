@@ -3,13 +3,21 @@ import { computed, ref, shallowRef, watch } from "vue";
 import { useAuth } from "./auth";
 import { existingFiles, findBySha1 } from "./commons";
 import type { Table } from "./csv";
+import { missingCategories } from "./categories";
 import { readExif } from "./exif";
 import { target } from "./wiki";
 import { language } from "./i18n";
-import { emptyMeta, initialDefaults, type Defaults, type Meta } from "./meta";
+import {
+  emptyMeta,
+  initialDefaults,
+  splitCategories,
+  type Defaults,
+  type Meta,
+} from "./meta";
 import { pool } from "./pool";
 import { fileKey, scanDirectory, sha1 } from "./scan";
 import {
+  effectiveMeta,
   ERRORS,
   MAX_SIZE,
   fileTitle,
@@ -46,6 +54,8 @@ export interface Photo {
 export interface Item {
   photo: Photo;
   meta: Meta;
+  /** categories that do not exist on Commons */
+  unknownCategories: string[];
   /** Commons title without `File:` */
   title: string;
   text: string;
@@ -161,13 +171,20 @@ export const usePhotos = createGlobalState(() => {
   /** normalized titles of selected files that exist on Commons */
   const existingTitles = ref(new Set<string>());
   const checkingTitles = ref(false);
+  /** categories of selected files that do not exist on Commons */
+  const unknownCategories = ref(new Set<string>());
   async function checkTitles() {
     checkingTitles.value = true;
     try {
-      existingTitles.value = await existingFiles(
-        items.value.map((item) => item.title),
-        target.value,
-      );
+      const [titles, categories] = await Promise.all([
+        existingFiles(
+          items.value.map((item) => item.title),
+          target.value,
+        ),
+        missingCategories(items.value.flatMap(categoriesOf)),
+      ]);
+      existingTitles.value = titles;
+      unknownCategories.value = categories;
     } finally {
       checkingTitles.value = false;
     }
@@ -180,6 +197,10 @@ export const usePhotos = createGlobalState(() => {
   });
 
   const { username } = useAuth();
+  const categoriesOf = (item: { meta: Meta }) =>
+    splitCategories(
+      effectiveMeta(item.meta, defaults.value, username.value).categories,
+    );
   const items = computed<Item[]>(() => {
     const selected = newPhotos.value.filter((photo) => !metaOf(photo).skip);
     const titleCount = new Map<string, number>();
@@ -193,6 +214,7 @@ export const usePhotos = createGlobalState(() => {
         title,
         text: pageText(m, defaults.value, username.value),
         problems: problems(m, photo.path, defaults.value, username.value),
+        unknownCategories: [] as string[],
         invalid: false,
       };
     });
@@ -202,6 +224,11 @@ export const usePhotos = createGlobalState(() => {
       if (existingTitles.value.has(item.title))
         item.problems.push("title-exists");
       if (item.photo.file.size > MAX_SIZE) item.problems.push("file-large");
+      item.unknownCategories = categoriesOf(item).filter((c) =>
+        unknownCategories.value.has(c),
+      );
+      if (item.unknownCategories.length)
+        item.problems.push("categories-unknown");
       item.invalid = item.problems.some((p) => ERRORS.has(p));
     }
     return all;

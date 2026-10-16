@@ -64,7 +64,7 @@
           :type="ERRORS.has(problem) ? 'error' : 'warning'"
           :inline="true"
         >
-          {{ t(`problem-${problem}`) }}
+          {{ t(`problem-${problem}`, current.unknownCategories.join(", ")) }}
         </cdx-message>
         <!-- eslint-disable-next-line vue/no-v-html -- rendered by MediaWiki -->
         <div v-if="rendered" class="df-rendered" v-html="html" />

@@ -65,8 +65,8 @@
   "review-ready": "$1 ready to upload",
   "review-invalid": "$1 with errors, skipped",
   "review-warned": "$1 with warnings",
-  "review-check": "Check file names",
-  "review-checking": "Checking file names…",
+  "review-check": "Check file names and categories",
+  "review-checking": "Checking…",
   "review-rendered": "Rendered preview",
   "problem-title-empty": "The file name is empty.",
   "problem-title-chars": "The file name must not contain # < > [ ] | { } / : \\ or ~~~.",
@@ -111,5 +111,7 @@
   "pattern-start": "First number",
   "pattern-preview": "Preview",
   "pattern-apply": "Rename {{PLURAL:$1|$1 file|$1 files}}",
-  "pattern-applied": "Renamed {{PLURAL:$1|$1 file|$1 files}}."
+  "pattern-applied": "Renamed {{PLURAL:$1|$1 file|$1 files}}.",
+  "categories-nearby": "nearby",
+  "problem-categories-unknown": "Categories that do not exist on Commons: $1."
 }

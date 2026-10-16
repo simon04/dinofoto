@@ -96,6 +96,7 @@ export type Problem =
   | "description-missing"
   | "date-missing"
   | "categories-missing"
+  | "categories-unknown"
   | "location-invalid";
 
 /** Problems that prevent the upload; others are warnings. */

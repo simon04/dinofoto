@@ -19,6 +19,7 @@ The workflow is split into four steps (tabs, each with the number of files, and 
 - All new pictures in one spreadsheet-like table: file name (the extension is kept), description, date, categories, latitude, longitude, camera heading; optionally author, source and license per file
 - Prefilled from the file name and EXIF: date taken (`DateTimeOriginal`), GPS position and camera heading ([exifr](https://github.com/MikeKovarik/exifr), reads only the metadata, not the whole file)
 - Defaults for all files: description language, description, categories (added to every file), author (empty: your user page), source (`{{own}}`) and license (`{{self|cc-by-sa-4.0}}` or other presets, or any license template)
+- **Category suggestions** in the table and the defaults: Commons categories matching the one being typed (each `;`-separated entry separately), and, for photos with a location, the most common categories of Commons files within 300 m (categories with a year left out, as they belong to other dates)
 - Enter / Shift+Enter moves to the same column in the next / previous row; “fill down” per column copies values into the empty cells below
 - Select which files to upload (checkbox per row, select all); click a thumbnail for a large preview
 - **File name pattern** for the selected files, e.g. `Kraków – Market Square ({nn})`, with a preview: `{n}`/`{nn}`/`{nnn}` (number, zero-padded, from a chosen start), `{title}` (current name), `{file}` (original file name), `{folder}` (directory), `{date}` (day taken), `{description}` (description as plain text); can be undone
@@ -33,8 +34,8 @@ The workflow is split into four steps (tabs, each with the number of files, and 
 - Pattypan-style list of all selected files with the resulting file description page: `{{Information}}` (description wrapped in a language template, date, source, author), `{{Location}}` with camera heading, license section and categories
 - Rendered preview of the page (Action API `action=parse`), or the wikitext
 - Checks per file; errors skip the file, warnings don’t:
-  - errors: empty file name, forbidden characters (`# < > [ ] | { } / : \ ~~~`), longer than 240 bytes, same name as another selected file, name already taken on Commons (checked in batches of 50 when the step opens), missing license, author or source
-  - warnings: camera-generated names (`IMG_1234`, `DSC…`, `PXL…`), file extension in the name, missing description, date or categories, invalid coordinates
+  - errors: empty file name, forbidden characters (`# < > [ ] | { } / : \ ~~~`), longer than 240 bytes, same name as another selected file, name already taken on the target wiki (checked in batches of 50 when the step opens), missing license, author or source
+  - warnings: categories that do not exist on Commons (checked together with the file names), camera-generated names (`IMG_1234`, `DSC…`, `PXL…`), file extension in the name, missing description, date or categories, invalid coordinates
 - Counts of files ready, with errors and with warnings
 
 ### 4. Upload

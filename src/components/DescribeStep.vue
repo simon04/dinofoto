@@ -18,6 +18,14 @@
             :menu-items="LICENSES.map((value) => ({ value }))"
           />
           <cdx-text-input
+            v-else-if="field === 'categories'"
+            v-model="defaults.categories"
+            list="df-category-list"
+            autocomplete="off"
+            @input="suggest(defaults.categories)"
+            @focus="suggest(defaults.categories)"
+          />
+          <cdx-text-input
             v-else
             v-model="defaults[field]"
             :placeholder="field === 'author' ? ownWork : ''"
@@ -113,6 +121,18 @@
                   <span class="df-ext">.{{ extension(photo.path) }}</span>
                 </span>
                 <input
+                  v-else-if="field === 'categories'"
+                  v-model="metaOf(photo).categories"
+                  :data-row="row"
+                  :data-field="field"
+                  list="df-category-list"
+                  autocomplete="off"
+                  @keydown="onKeydown"
+                  @paste="onPaste($event, row, field)"
+                  @input="suggestFor(photo)"
+                  @focus="suggestFor(photo)"
+                />
+                <input
                   v-else
                   v-model="metaOf(photo)[field]"
                   :data-row="row"
@@ -127,6 +147,15 @@
         </table>
       </div>
     </template>
+
+    <datalist id="df-category-list">
+      <option
+        v-for="option in categoryOptions"
+        :key="option.value"
+        :value="option.value"
+        :label="option.label"
+      />
+    </datalist>
 
     <PatternDialog v-model:open="showPattern" />
 
@@ -188,6 +217,7 @@ import {
   cdxIconPaste,
 } from "@wikimedia/codex-icons";
 import { readTable, writeTable, type Table } from "../csv";
+import { useCategorySuggestions } from "../categories";
 import { t } from "../i18n";
 import { useAuth } from "../auth";
 import { DEFAULT_FIELDS, FIELDS, LICENSES, type Field } from "../meta";
@@ -243,6 +273,12 @@ function onKeydown(event: KeyboardEvent) {
   event.preventDefault();
   next.focus();
   next.select();
+}
+
+const { options: categoryOptions, suggest } = useCategorySuggestions();
+function suggestFor(photo: Photo) {
+  const m = metaOf(photo);
+  suggest(m.categories, m.latitude, m.longitude);
 }
 
 const showPattern = ref(false);
