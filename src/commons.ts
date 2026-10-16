@@ -28,3 +28,48 @@ export async function findBySha1(sha1: string): Promise<string | undefined> {
 
 export const fileUrl = (title: string) =>
   `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(title.replaceAll(" ", "_"))}`;
+
+/** Titles (without `File:`, normalized) of these files that exist on Commons. */
+export async function existingFiles(titles: string[]): Promise<Set<string>> {
+  const existing = new Set<string>();
+  for (let i = 0; i < titles.length; i += 50) {
+    const json = await apiGet<{
+      query: {
+        pages: { title: string; missing?: boolean; invalid?: boolean }[];
+      };
+    }>({
+      action: "query",
+      titles: titles
+        .slice(i, i + 50)
+        .map((title) => `File:${title}`)
+        .join("|"),
+    });
+    for (const page of json.query.pages)
+      if (!page.missing && !page.invalid)
+        existing.add(page.title.replace(/^File:/, ""));
+  }
+  return existing;
+}
+
+/** HTML of wikitext rendered as a file description page. */
+export async function parse(text: string, title: string): Promise<string> {
+  const res = await fetch(API, {
+    method: "POST",
+    body: new URLSearchParams({
+      action: "parse",
+      format: "json",
+      formatversion: "2",
+      origin: "*",
+      text,
+      title: `File:${title}`,
+      contentmodel: "wikitext",
+      prop: "text|categories",
+      pst: "1",
+      disablelimitreport: "1",
+      uselang: "en",
+    }),
+  });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  const json: { parse: { text: string } } = await res.json();
+  return json.parse.text;
+}

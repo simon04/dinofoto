@@ -1,12 +1,21 @@
 import { createGlobalState, useLocalStorage } from "@vueuse/core";
 import { computed, ref, shallowRef } from "vue";
-import { findBySha1 } from "./commons";
+import { useAuth } from "./auth";
+import { existingFiles, findBySha1 } from "./commons";
 import type { Table } from "./csv";
 import { readExif } from "./exif";
 import { language } from "./i18n";
 import { emptyMeta, initialDefaults, type Defaults, type Meta } from "./meta";
 import { pool } from "./pool";
 import { fileKey, scanDirectory, sha1 } from "./scan";
+import {
+  ERRORS,
+  fileTitle,
+  normalizeTitle,
+  pageText,
+  problems,
+  type Problem,
+} from "./wikitext";
 
 export type Status =
   /** waiting to be hashed */
@@ -29,6 +38,18 @@ export interface Photo {
   /** title of the identical file on Commons */
   existing?: string;
   error?: string;
+}
+
+/** A picture selected for upload, with the resulting page. */
+export interface Item {
+  photo: Photo;
+  meta: Meta;
+  /** Commons title without `File:` */
+  title: string;
+  text: string;
+  problems: Problem[];
+  /** has problems that prevent the upload */
+  invalid: boolean;
 }
 
 export const usePhotos = createGlobalState(() => {
@@ -135,6 +156,47 @@ export const usePhotos = createGlobalState(() => {
     return { updated, unmatched, undo };
   }
 
+  /** normalized titles of selected files that exist on Commons */
+  const existingTitles = ref(new Set<string>());
+  const checkingTitles = ref(false);
+  async function checkTitles() {
+    checkingTitles.value = true;
+    try {
+      existingTitles.value = await existingFiles(
+        items.value.map((item) => item.title),
+      );
+    } finally {
+      checkingTitles.value = false;
+    }
+  }
+
+  const { username } = useAuth();
+  const items = computed<Item[]>(() => {
+    const selected = newPhotos.value.filter((photo) => !metaOf(photo).skip);
+    const titleCount = new Map<string, number>();
+    const all = selected.map((photo) => {
+      const m = metaOf(photo);
+      const title = normalizeTitle(fileTitle(m, photo.path));
+      titleCount.set(title, (titleCount.get(title) ?? 0) + 1);
+      return {
+        photo,
+        meta: m,
+        title,
+        text: pageText(m, defaults.value, username.value),
+        problems: problems(m, photo.path, defaults.value, username.value),
+        invalid: false,
+      };
+    });
+    for (const item of all) {
+      if (titleCount.get(item.title)! > 1)
+        item.problems.push("title-duplicate");
+      if (existingTitles.value.has(item.title))
+        item.problems.push("title-exists");
+      item.invalid = item.problems.some((p) => ERRORS.has(p));
+    }
+    return all;
+  });
+
   const counts = computed(() => {
     const result: Record<Status, number> = {
       queued: 0,
@@ -163,6 +225,9 @@ export const usePhotos = createGlobalState(() => {
     defaults,
     metaOf,
     applyTable,
+    items,
+    checkTitles,
+    checkingTitles,
     open,
   };
 });

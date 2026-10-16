@@ -27,6 +27,15 @@ The workflow is split into steps (tabs), so that 100+ photos can be prepared and
 - Every paste can be undone from the toast
 - Everything is saved in localStorage, keyed by SHA-1: metadata survives reloads, reopening the directory, and even renaming or moving files
 
+### 3. Review
+
+- Pattypan-style list of all selected files with the resulting file description page: `{{Information}}` (description wrapped in a language template, date, source, author), `{{Location}}` with camera heading, license section and categories
+- Rendered preview of the page (Action API `action=parse`), or the wikitext
+- Checks per file; errors skip the file, warnings don’t:
+  - errors: empty file name, forbidden characters (`# < > [ ] | { } / : \ ~~~`), longer than 240 bytes, same name as another selected file, name already taken on Commons (checked in batches of 50 when the step opens), missing license, author or source
+  - warnings: camera-generated names (`IMG_1234`, `DSC…`, `PXL…`), file extension in the name, missing description, date or categories, invalid coordinates
+- Counts of files ready, with errors and with warnings
+
 ## Development
 
 ```sh

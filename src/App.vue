@@ -23,6 +23,13 @@
       >
         <DescribeStep />
       </cdx-tab>
+      <cdx-tab
+        name="review"
+        :label="t('step-review', items.length)"
+        :disabled="!items.length"
+      >
+        <ReviewStep v-if="step === 'review'" />
+      </cdx-tab>
     </cdx-tabs>
   </main>
   <cdx-toast-container />
@@ -38,9 +45,10 @@ import LanguageSelector from "./components/LanguageSelector.vue";
 import UserMenu from "./components/UserMenu.vue";
 import FilesStep from "./components/FilesStep.vue";
 import DescribeStep from "./components/DescribeStep.vue";
+import ReviewStep from "./components/ReviewStep.vue";
 import { usePhotos } from "./store";
 
-const { newPhotos } = usePhotos();
+const { newPhotos, items } = usePhotos();
 
 const step = ref("files");
 
