@@ -38,15 +38,34 @@
         <UploadStep />
       </cdx-tab>
     </cdx-tabs>
+    <div v-if="next" class="df-next">
+      <cdx-button
+        action="progressive"
+        weight="primary"
+        @click="step = next.name"
+      >
+        {{ next.label }}
+        <cdx-icon :icon="cdxIconArrowNext" />
+      </cdx-button>
+    </div>
   </main>
   <cdx-toast-container />
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { useTextDirection } from "@vueuse/core";
-import { CdxIcon, CdxTab, CdxTabs, CdxToastContainer } from "@wikimedia/codex";
-import { cdxIconLogoWikimediaCommons } from "@wikimedia/codex-icons";
+import {
+  CdxButton,
+  CdxIcon,
+  CdxTab,
+  CdxTabs,
+  CdxToastContainer,
+} from "@wikimedia/codex";
+import {
+  cdxIconArrowNext,
+  cdxIconLogoWikimediaCommons,
+} from "@wikimedia/codex-icons";
 import { isRTL, language, t } from "./i18n";
 import LanguageSelector from "./components/LanguageSelector.vue";
 import UserMenu from "./components/UserMenu.vue";
@@ -59,6 +78,30 @@ import { usePhotos } from "./store";
 
 const { newPhotos, items } = usePhotos();
 const { queue } = useUploader();
+
+/** The following step, once it has files. */
+const next = computed(() => {
+  const steps = [
+    { name: "files", label: t("step-files"), enabled: true },
+    {
+      name: "describe",
+      label: t("step-describe", newPhotos.value.length),
+      enabled: newPhotos.value.length > 0,
+    },
+    {
+      name: "review",
+      label: t("step-review", items.value.length),
+      enabled: items.value.length > 0,
+    },
+    {
+      name: "upload",
+      label: t("step-upload", queue.value.length),
+      enabled: queue.value.length > 0,
+    },
+  ];
+  const following = steps[steps.findIndex((s) => s.name === step.value) + 1];
+  return following?.enabled ? following : undefined;
+});
 
 const step = ref("files");
 
@@ -142,6 +185,16 @@ textarea.df-mono {
 .df-intro {
   flex: 1;
   color: var(--color-subtle);
+}
+.df-next {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.75rem 0;
+  background: var(--background-color-base);
+  border-top: 1px solid var(--border-color-subtle);
+  margin-top: 1rem;
 }
 .df-main {
   max-width: none;

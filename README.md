@@ -4,7 +4,7 @@ Batch upload a local directory of photos to [Wikimedia Commons](https://commons.
 
 ## Features
 
-The workflow is split into steps (tabs), so that 100+ photos can be prepared and then uploaded in one go without intermediate halts.
+The workflow is split into four steps (tabs, each with the number of files, and a button to the next step), so that 100+ photos can be prepared and then uploaded in one go without intermediate halts.
 
 ### 1. Files
 
