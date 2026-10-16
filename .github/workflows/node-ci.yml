@@ -1,0 +1,34 @@
+name: Node CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: write # push to gh-pages
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      TOOLFORGE_DEPLOY_TOKEN: ${{ secrets.TOOLFORGE_DEPLOY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: pnpm install
+      - run: pnpm test
+      - run: pnpm build
+      - uses: peaceiris/actions-gh-pages@v3
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true
+      - name: Deploy to Toolforge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && env.TOOLFORGE_DEPLOY_TOKEN != ''
+        run: >
+          curl --fail-with-body -X POST
+          "https://api.svc.toolforge.org/components/v1/tool/dinofoto/deployment?token=$TOOLFORGE_DEPLOY_TOKEN"

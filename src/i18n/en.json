@@ -1,0 +1,8 @@
+{
+  "app-intro": "Upload a directory of photos to Wikimedia Commons.",
+  "language": "Language",
+  "language-no-results": "No matching language.",
+  "login": "Log in",
+  "logout": "Log out",
+  "login-failed": "Login failed: $1"
+}
