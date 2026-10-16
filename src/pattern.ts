@@ -59,3 +59,28 @@ export function applyPattern(
     .replace(/\s+/g, " ")
     .trim();
 }
+
+/**
+ * Captions from a description: each language template becomes a caption in
+ * its language (`{{en|1=…}}{{de|1=…}}` → `en: … | de: …`), other text one in
+ * the default language; each at most `max` characters.
+ */
+export function captionsFromDescription(
+  description: string,
+  max: number,
+): Record<string, string> {
+  const result: Record<string, string> = {};
+  const clip = (text: string) =>
+    text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
+  const templates =
+    /\{\{\s*([a-z]{2,3}(?:-[a-z]+)*)\s*\|\s*(?:1\s*=)?\s*((?:[^{}]|\{\{[^{}]*\}\})*)\}\}/gi;
+  for (const [, lang, text] of description.matchAll(templates)) {
+    const plain = plainText(text!);
+    if (plain) result[lang!.toLowerCase()] = clip(plain);
+  }
+  if (!Object.keys(result).length) {
+    const plain = plainText(description);
+    if (plain) result[""] = clip(plain);
+  }
+  return result;
+}

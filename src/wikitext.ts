@@ -1,6 +1,7 @@
 import {
   invalidItems,
   MAX_CAPTION,
+  parseCaptions,
   splitCategories,
   type Defaults,
   type Meta,
@@ -150,7 +151,12 @@ export function problems(
   if (!m.description) result.push("description-missing");
   if (!m.date.trim()) result.push("date-missing");
   if (!m.categories) result.push("categories-missing");
-  if (m.caption.trim().length > MAX_CAPTION) result.push("caption-long");
+  if (
+    Object.values(parseCaptions(m.caption, defaults.language)).some(
+      (text) => text.length > MAX_CAPTION,
+    )
+  )
+    result.push("caption-long");
   if (invalidItems(m.depicts).length) result.push("depicts-invalid");
   if (
     (m.latitude.trim() || m.longitude.trim()) &&

@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vite-plus/test";
-import { emptyMeta, initialDefaults, invalidItems, splitItems } from "./meta";
+import {
+  emptyMeta,
+  formatCaptions,
+  initialDefaults,
+  invalidItems,
+  parseCaptions,
+  splitItems,
+} from "./meta";
+import { captionsFromDescription } from "./pattern";
 import { statements, structuredData, timeValue } from "./sdc";
 import { COMMONS, WIKIS } from "./wiki";
 
@@ -115,5 +123,43 @@ describe("statements", () => {
     });
     expect(timeValue("2012-06")).toMatchObject({ precision: 10 });
     expect(timeValue("circa 2012")).toBeUndefined();
+  });
+});
+
+describe("captions", () => {
+  it("parses one or several languages", () => {
+    expect(parseCaptions("Tuchhallen", "de")).toEqual({ de: "Tuchhallen" });
+    expect(parseCaptions("en: Cloth Hall | DE: Tuchhallen", "pl")).toEqual({
+      en: "Cloth Hall",
+      de: "Tuchhallen",
+    });
+    expect(formatCaptions({ en: "A", de: "B" })).toBe("en: A | de: B");
+  });
+
+  it("are derived from descriptions with language templates", () => {
+    expect(
+      captionsFromDescription(
+        "{{en|1=The [[Cloth Hall]]}} {{de|Tuchhallen}}",
+        250,
+      ),
+    ).toEqual({ en: "The Cloth Hall", de: "Tuchhallen" });
+    expect(captionsFromDescription("x".repeat(300), 10)).toEqual({
+      "": "xxxxxxxxx…",
+    });
+  });
+
+  it("become labels per language", () => {
+    expect(
+      structuredData(
+        { ...emptyMeta(), caption: "en: Cloth Hall | de: Tuchhallen" },
+        defaults,
+        COMMONS,
+      ),
+    ).toEqual({
+      labels: {
+        en: { language: "en", value: "Cloth Hall" },
+        de: { language: "de", value: "Tuchhallen" },
+      },
+    });
   });
 });

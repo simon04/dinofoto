@@ -121,3 +121,29 @@ export function invalidItems(value: string): string[] {
 
 /** Captions are limited by Wikibase MediaInfo. */
 export const MAX_CAPTION = 250;
+
+/**
+ * Captions by language from `Text` (in the default language) or
+ * `en: Cloth Hall | de: Tuchhallen`.
+ */
+export function parseCaptions(
+  value: string,
+  language: string,
+): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const part of value.split(" | ")) {
+    const match = part.match(/^\s*([a-z]{2,3}(?:-[a-z0-9]+)*)\s*:\s*(.*)$/i);
+    const [lang, text] = match
+      ? [match[1]!.toLowerCase(), match[2]!]
+      : [language.trim(), part];
+    if (lang && text.trim()) result[lang] = text.trim();
+  }
+  return result;
+}
+
+/** Captions in the `en: … | de: …` format. */
+export function formatCaptions(captions: Record<string, string>): string {
+  return Object.entries(captions)
+    .map(([lang, text]) => `${lang}: ${text}`)
+    .join(" | ");
+}

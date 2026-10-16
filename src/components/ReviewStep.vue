@@ -70,9 +70,9 @@
         <div v-if="rendered" class="df-rendered" v-html="html" />
         <pre v-else class="df-wikitext">{{ current.text }}</pre>
         <dl v-if="sdc" class="df-sdc">
-          <template v-if="sdc.caption">
-            <dt>{{ t("field-caption") }} ({{ defaults.language }})</dt>
-            <dd>{{ sdc.caption }}</dd>
+          <template v-for="(text, lang) in sdc.captions" :key="lang">
+            <dt>{{ t("field-caption") }} ({{ lang }})</dt>
+            <dd>{{ text }}</dd>
           </template>
           <template v-for="(statement, i) in sdc.statements" :key="i">
             <dt>
@@ -132,6 +132,7 @@ import { parse } from "../commons";
 import { usePhotos } from "../store";
 import { ERRORS } from "../wikitext";
 import { snakText, statements, structuredData } from "../sdc";
+import { parseCaptions } from "../meta";
 import { useAuth } from "../auth";
 import type { MessageKey } from "../i18n";
 import { target } from "../wiki";
@@ -158,7 +159,10 @@ const sdc = computed(() => {
     structuredData(item.meta, defaults.value, target.value, username.value);
   if (!item || !data) return undefined;
   return {
-    caption: "labels" in data ? item.meta.caption.trim() : "",
+    captions:
+      "labels" in data
+        ? parseCaptions(item.meta.caption, defaults.value.language)
+        : {},
     statements:
       "claims" in data
         ? statements(item.meta, defaults.value, username.value)

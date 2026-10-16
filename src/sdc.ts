@@ -1,6 +1,12 @@
 import { useDebounceFn } from "@vueuse/core";
 import { shallowRef } from "vue";
-import { MAX_CAPTION, splitItems, type Defaults, type Meta } from "./meta";
+import {
+  MAX_CAPTION,
+  parseCaptions,
+  splitItems,
+  type Defaults,
+  type Meta,
+} from "./meta";
 import { apiPost, type Auth } from "./upload";
 import { effectiveMeta, ownWorkAuthor } from "./wikitext";
 import type { Wiki } from "./wiki";
@@ -182,15 +188,18 @@ export function structuredData(
   username?: string,
 ): object | undefined {
   if (!wiki.mediainfo) return undefined;
-  const caption = meta.caption.trim();
-  const language = defaults.language.trim();
+  const captions = parseCaptions(meta.caption, defaults.language);
   const claims = wiki.wikidata
     ? statements(meta, defaults, username).map(claim)
     : [];
-  const labels =
-    caption && language && caption.length <= MAX_CAPTION
-      ? { [language]: { language, value: caption } }
-      : undefined;
+  const valid = Object.entries(captions).filter(
+    ([, text]) => text.length <= MAX_CAPTION,
+  );
+  const labels = valid.length
+    ? Object.fromEntries(
+        valid.map(([language, value]) => [language, { language, value }]),
+      )
+    : undefined;
   if (!labels && !claims.length) return undefined;
   return {
     ...(labels ? { labels } : {}),

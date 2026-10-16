@@ -116,7 +116,7 @@
   "problem-categories-unknown": "Categories that do not exist on Commons: $1.",
   "field-caption": "Caption",
   "field-depicts": "Depicts",
-  "problem-caption-long": "The caption is longer than 250 characters and will not be saved.",
+  "problem-caption-long": "A caption is longer than 250 characters and will not be saved.",
   "problem-depicts-invalid": "Depicts should only contain Wikidata item IDs (Q1234).",
   "upload-sdc-failed": "Uploaded, but captions and depicts were not saved: $1",
   "sdc-unknown-value": "unknown value",
@@ -130,5 +130,7 @@
   "property-P170": "Creator",
   "property-P2093": "Author name string",
   "property-P4174": "Wikimedia username",
-  "property-P2699": "URL"
+  "property-P2699": "URL",
+  "describe-caption-from-description": "Fill empty captions from the descriptions",
+  "describe-captions-filled": "Filled {{PLURAL:$1|$1 caption|$1 captions}}."
 }

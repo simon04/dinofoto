@@ -82,6 +82,16 @@
                   >
                     <cdx-icon :icon="cdxIconArrowDown" size="small" />
                   </cdx-button>
+                  <cdx-button
+                    v-if="field === 'caption'"
+                    weight="quiet"
+                    size="small"
+                    :aria-label="t('describe-caption-from-description')"
+                    v-tooltip="t('describe-caption-from-description')"
+                    @click="captionsFromDescriptions"
+                  >
+                    <cdx-icon :icon="cdxIconCopy" size="small" />
+                  </cdx-button>
                 </span>
               </th>
             </tr>
@@ -244,7 +254,15 @@ import { useCategorySuggestions } from "../categories";
 import { useItemSuggestions } from "../sdc";
 import { t } from "../i18n";
 import { useAuth } from "../auth";
-import { DEFAULT_FIELDS, FIELDS, LICENSES, type Field } from "../meta";
+import {
+  DEFAULT_FIELDS,
+  FIELDS,
+  formatCaptions,
+  LICENSES,
+  MAX_CAPTION,
+  type Field,
+} from "../meta";
+import { captionsFromDescription } from "../pattern";
 import { extension } from "../scan";
 import { usePhotos, type Photo } from "../store";
 import { ownWorkAuthor } from "../wikitext";
@@ -283,6 +301,32 @@ function fillDown(field: Field) {
     if (m[field]) last = m[field];
     else m[field] = last;
   }
+}
+
+/** Fill empty captions from the descriptions, one per language template. */
+function captionsFromDescriptions() {
+  let count = 0;
+  for (const photo of newPhotos.value) {
+    const m = metaOf(photo);
+    if (m.caption.trim()) continue;
+    const captions = captionsFromDescription(m.description, MAX_CAPTION);
+    const languages = Object.keys(captions);
+    if (!languages.length) continue;
+    m.caption =
+      languages.length === 1 &&
+      [defaults.value.language, ""].includes(languages[0]!)
+        ? Object.values(captions)[0]!
+        : formatCaptions(
+            Object.fromEntries(
+              Object.entries(captions).map(([lang, text]) => [
+                lang || defaults.value.language,
+                text,
+              ]),
+            ),
+          );
+    count++;
+  }
+  toast.success(t("describe-captions-filled", count));
 }
 
 /** Enter moves to the next row, Shift+Enter to the previous one. */
