@@ -154,5 +154,15 @@
   "preset-example": "e.g. Wiki Loves Monuments",
   "preset-loaded": "Loaded preset “$1”.",
   "preset-saved": "Saved preset “$1”.",
-  "preset-deleted": "Deleted preset “$1”."
+  "preset-deleted": "Deleted preset “$1”.",
+  "upload-check": "Check {{PLURAL:$1|$1 file|$1 files}} on the server first",
+  "upload-state-checking": "Checking",
+  "upload-state-checked": "Checked",
+  "warning-exists": "A file with this name exists: $1.",
+  "warning-duplicate": "The same file is already on Commons: $1.",
+  "warning-duplicate-archive": "The same file was deleted before: $1.",
+  "warning-was-deleted": "A file with this name was deleted before.",
+  "warning-badfilename": "The name was changed to $1.",
+  "warning-bad-prefix": "Names given by cameras ($1) are discouraged.",
+  "warning-empty-file": "The file is empty."
 }

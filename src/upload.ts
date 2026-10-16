@@ -1,3 +1,4 @@
+import { t, type MessageKey } from "./i18n";
 import { apiUrl, type Wiki } from "./wiki";
 
 export interface Auth {
@@ -245,13 +246,48 @@ export async function uploadFile(
   return result.result === "Warning" ? { filekey, ...result } : result;
 }
 
-/** Human-readable warnings of a failed upload. */
+/**
+ * Stash a file without publishing it, e.g. to learn about duplicates first.
+ * Warnings of small files are returned; those of chunked uploads only show
+ * when publishing.
+ */
+export async function stashFile(
+  file: File,
+  filename: string,
+  token: string,
+  auth: Auth,
+  onProgress?: (bytes: number) => void,
+): Promise<{ filekey: string; warnings?: Record<string, unknown> }> {
+  if (file.size >= CHUNKED_FROM)
+    return {
+      filekey: await stashChunked(file, filename, token, auth, onProgress),
+    };
+  const json = await apiPost<{
+    upload: { filekey: string; warnings?: Record<string, unknown> };
+  }>({ action: "upload", stash: "1", filename, file, token }, auth);
+  return json.upload;
+}
+
+/** Human-readable warnings of an upload. */
 export function formatWarnings(warnings: Record<string, unknown>): string {
   return Object.entries(warnings)
-    .map(([key, value]) =>
-      typeof value === "string" || Array.isArray(value)
-        ? `${key}: ${[value].flat().join(", ")}`
-        : key,
-    )
-    .join("; ");
+    .map(([key, value]) => {
+      const text = [value].flat().join(", ");
+      const message = WARNINGS[key];
+      return message ? t(message, text) : text ? `${key}: ${text}` : key;
+    })
+    .join(" ");
 }
+
+const WARNINGS: Record<string, MessageKey> = {
+  exists: "warning-exists",
+  "exists-normalized": "warning-exists",
+  "page-exists": "warning-exists",
+  duplicate: "warning-duplicate",
+  "duplicate-archive": "warning-duplicate-archive",
+  duplicateversions: "warning-duplicate",
+  "was-deleted": "warning-was-deleted",
+  badfilename: "warning-badfilename",
+  "bad-prefix": "warning-bad-prefix",
+  "empty-file": "warning-empty-file",
+};

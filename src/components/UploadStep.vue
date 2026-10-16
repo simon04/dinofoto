@@ -30,12 +30,21 @@
         <cdx-text-input v-model="comment" :disabled="running" />
       </cdx-field>
       <cdx-button
+        v-if="!running && unchecked"
+        size="large"
+        :disabled="!username || busy"
+        @click="withWakeLock(check)"
+      >
+        <cdx-icon :icon="cdxIconCheck" />
+        {{ t("upload-check", unchecked) }}
+      </cdx-button>
+      <cdx-button
         v-if="!running"
         action="progressive"
         weight="primary"
         size="large"
         :disabled="!username || remaining === 0 || busy"
-        @click="startUpload"
+        @click="withWakeLock(start)"
       >
         <cdx-icon :icon="cdxIconUpload" />
         {{ t("upload-start", remaining) }}
@@ -171,6 +180,7 @@ import {
   useToast,
 } from "@wikimedia/codex";
 import {
+  cdxIconCheck,
   cdxIconCopy,
   cdxIconImageGallery,
   cdxIconLogIn,
@@ -197,6 +207,7 @@ const {
   pausing,
   summary,
   start,
+  check,
   pause,
   uploadItem,
 } = useUploader();
@@ -252,15 +263,15 @@ async function copyQuickStatements() {
   toast.success(t("upload-copied-qs"));
 }
 
-const remaining = computed(
-  () =>
-    queue.value.filter((item) =>
-      ["waiting", "failed"].includes(stateOf(item).state),
-    ).length,
-);
+const count = (states: UploadState["state"][]) =>
+  queue.value.filter((item) => states.includes(stateOf(item).state)).length;
+const remaining = computed(() => count(["waiting", "failed", "checked"]));
+const unchecked = computed(() => count(["waiting", "failed"]));
 
 const chipStatus = {
   waiting: "notice",
+  checking: "notice",
+  checked: "notice",
   uploading: "notice",
   done: "success",
   warning: "warning",
@@ -272,10 +283,10 @@ const wakeLock = useWakeLock();
 useEventListener(window, "beforeunload", (event) => {
   if (running.value) event.preventDefault();
 });
-async function startUpload() {
+async function withWakeLock(run: () => Promise<void>) {
   await wakeLock.request("screen").catch(() => undefined);
   try {
-    await start();
+    await run();
   } finally {
     await wakeLock.release().catch(() => undefined);
   }

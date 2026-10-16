@@ -9,12 +9,21 @@ import {
   ApiError,
   formatWarnings,
   getCsrfToken,
+  stashFile,
   uploadFile,
   type Auth,
 } from "./upload";
 
 export interface UploadState {
-  state: "waiting" | "uploading" | "done" | "warning" | "failed";
+  state:
+    | "waiting"
+    | "checking"
+    /** stashed without warnings, ready to publish */
+    | "checked"
+    | "uploading"
+    | "done"
+    | "warning"
+    | "failed";
   message?: string;
   /** stashed file of an upload stopped by warnings */
   filekey?: string;
@@ -84,7 +93,7 @@ export const useUploader = createGlobalState(() => {
         const result = await uploadFile(
           {
             file: item.photo.file,
-            filekey: ignorewarnings ? state.filekey : undefined,
+            filekey: state.filekey,
             filename: item.title,
             text: item.text,
             comment: comment.value,
@@ -111,6 +120,11 @@ export const useUploader = createGlobalState(() => {
         return;
       } catch (e) {
         const code = e instanceof ApiError ? e.code : "";
+        // stashed files expire after some hours: upload again
+        if (state.filekey && /stash|filekey/.test(code)) {
+          state.filekey = undefined;
+          continue;
+        }
         const retry =
           attempt < RETRIES &&
           (!code || code === "ratelimited" || code === "badtoken");
@@ -157,6 +171,53 @@ export const useUploader = createGlobalState(() => {
     }
   }
 
+  /**
+   * Stash all files not uploaded yet without publishing them, to show
+   * warnings such as duplicates or deleted files before anything is public.
+   */
+  async function check() {
+    if (running.value) return;
+    running.value = true;
+    pausing.value = false;
+    try {
+      for (const item of queue.value) {
+        if (pausing.value) break;
+        if (!["waiting", "failed"].includes(stateOf(item).state)) continue;
+        await checkItem(item);
+      }
+    } finally {
+      running.value = false;
+      pausing.value = false;
+    }
+  }
+
+  async function checkItem(item: Item) {
+    const key = keyOf(item);
+    states[key] = { state: "checking", bytes: 0 };
+    const state = states[key]!;
+    try {
+      const token = await getCsrfToken(auth());
+      const { filekey, warnings } = await stashFile(
+        item.photo.file,
+        item.title,
+        token,
+        auth(),
+        (bytes) => (state.bytes = bytes),
+      );
+      const relevant = Object.keys(warnings ?? {}).length > 0;
+      Object.assign(state, {
+        state: relevant ? "warning" : "checked",
+        filekey,
+        message: relevant ? formatWarnings(warnings!) : undefined,
+      });
+    } catch (e) {
+      Object.assign(state, {
+        state: "failed",
+        message: e instanceof Error ? e.message : String(e),
+      });
+    }
+  }
+
   /** Upload all files not uploaded yet, one after another. */
   async function start() {
     if (running.value) return;
@@ -184,7 +245,8 @@ export const useUploader = createGlobalState(() => {
     for (const item of queue.value) {
       const { state, bytes } = stateOf(item);
       result.total += item.photo.file.size;
-      if (state === "uploading") result.bytes += bytes ?? 0;
+      if (state === "uploading" || state === "checking")
+        result.bytes += bytes ?? 0;
       if (state === "done") {
         result.done++;
         result.bytes += item.photo.file.size;
@@ -203,6 +265,7 @@ export const useUploader = createGlobalState(() => {
     pausing,
     summary,
     start,
+    check,
     pause,
     uploadItem,
   };
