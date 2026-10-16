@@ -1,6 +1,7 @@
 import { createGlobalState, useLocalStorage } from "@vueuse/core";
 import { computed, ref, shallowRef } from "vue";
 import { findBySha1 } from "./commons";
+import type { Table } from "./csv";
 import { readExif } from "./exif";
 import { language } from "./i18n";
 import { emptyMeta, initialDefaults, type Defaults, type Meta } from "./meta";
@@ -109,6 +110,31 @@ export const usePhotos = createGlobalState(() => {
     return (meta.value[photo.sha1!] ??= emptyMeta());
   }
 
+  /**
+   * Apply pasted rows: matched by the file column (path or file name), else
+   * by order starting at `startRow`. Returns the number of updated pictures
+   * and rows that matched none, and a function to undo.
+   */
+  function applyTable(table: Table, startRow = 0) {
+    const before = JSON.stringify(meta.value);
+    const photos = newPhotos.value;
+    const byName = (file: string) =>
+      photos.find((p) => p.path === file) ??
+      photos.find((p) => p.path.split("/").pop() === file);
+    let updated = 0;
+    let unmatched = 0;
+    table.rows.forEach((row, i) => {
+      const photo = row.file ? byName(row.file) : photos[startRow + i];
+      if (!photo) return unmatched++;
+      Object.assign(metaOf(photo), row.values);
+      updated++;
+    });
+    const undo = () => {
+      meta.value = JSON.parse(before) as Record<string, Meta>;
+    };
+    return { updated, unmatched, undo };
+  }
+
   const counts = computed(() => {
     const result: Record<Status, number> = {
       queued: 0,
@@ -136,6 +162,7 @@ export const usePhotos = createGlobalState(() => {
     meta,
     defaults,
     metaOf,
+    applyTable,
     open,
   };
 });

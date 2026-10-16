@@ -32,7 +32,7 @@
   "describe-selected": "$1 of $2 selected for upload",
   "describe-select-all": "Select all",
   "describe-more-columns": "Author, source and license per file",
-  "describe-keys": "Enter: next row · Shift+Enter: previous row",
+  "describe-keys": "Enter: next row · Shift+Enter: previous row · paste cells from a spreadsheet into any cell",
   "describe-fill-down": "Fill empty cells with the value above",
   "field-language": "Description language",
   "field-language-help": "For descriptions without a language template, e.g. en → {{en|1=…}}",
@@ -50,5 +50,15 @@
   "default-categories-help": "Added to every file; separate with ;",
   "default-author-help": "Used for files without an author; empty: your user page",
   "default-source-help": "Used for files without a source",
-  "default-license-help": "Used for files without a license"
+  "default-license-help": "Used for files without a license",
+  "csv-import": "Paste CSV",
+  "csv-import-help": "Paste a table from a spreadsheet (tab-separated) or CSV (comma or semicolon). The first row names the columns; a “file” column matches rows to pictures by path or file name, else rows are taken in table order. Columns:",
+  "csv-apply": "Apply",
+  "csv-copy": "Copy table",
+  "csv-copied": "Copied $1 rows, paste them into a spreadsheet",
+  "csv-download": "Download CSV",
+  "csv-applied": "Updated {{PLURAL:$1|$1 file|$1 files}}.",
+  "csv-unmatched": "{{PLURAL:$1|$1 row|$1 rows}} matched no picture.",
+  "csv-unknown": "Ignored columns: $1.",
+  "undo": "Undo"
 }

@@ -21,6 +21,10 @@ The workflow is split into steps (tabs), so that 100+ photos can be prepared and
 - Defaults for all files: description language, description, categories (added to every file), author (empty: your user page), source (`{{own}}`) and license (`{{self|cc-by-sa-4.0}}` or other presets, or any license template)
 - Enter / Shift+Enter moves to the same column in the next / previous row; “fill down” per column copies values into the empty cells below
 - Select which files to upload (checkbox per row, select all); click a thumbnail for a large preview
+- **Paste CSV**: a table from a spreadsheet (tab-separated) or CSV (comma or semicolon, RFC 4180 quoting); the header row names the columns (`file`, `title`, `description`, `date`, `categories`, `latitude`, `longitude`, `heading`, `author`, `source`, `license`, and aliases such as `path`, `lat`, `lon`); a `file` column matches rows to pictures by path or file name, otherwise rows are applied in table order; unknown columns and unmatched rows are reported
+- **Paste cells** copied from a spreadsheet into any cell: they fill the table from that cell to the right and downwards
+- **Copy table** (tab-separated, to paste into a spreadsheet, edit there and paste back) and **Download CSV**
+- Every paste can be undone from the toast
 - Everything is saved in localStorage, keyed by SHA-1: metadata survives reloads, reopening the directory, and even renaming or moving files
 
 ## Development

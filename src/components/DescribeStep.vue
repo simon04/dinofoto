@@ -30,6 +30,18 @@
         <cdx-toggle-switch v-model="moreColumns">
           {{ t("describe-more-columns") }}
         </cdx-toggle-switch>
+        <cdx-button @click="showImport = true">
+          <cdx-icon :icon="cdxIconPaste" />
+          {{ t("csv-import") }}
+        </cdx-button>
+        <cdx-button @click="copyTable">
+          <cdx-icon :icon="cdxIconCopy" />
+          {{ t("csv-copy") }}
+        </cdx-button>
+        <cdx-button @click="downloadCsv">
+          <cdx-icon :icon="cdxIconDownload" />
+          {{ t("csv-download") }}
+        </cdx-button>
         <span class="df-hint">{{ t("describe-keys") }}</span>
       </div>
 
@@ -92,6 +104,7 @@
                     :data-field="field"
                     :title="photo.path"
                     @keydown="onKeydown"
+                    @paste="onPaste($event, row, field)"
                   />
                   <span class="df-ext">.{{ extension(photo.path) }}</span>
                 </span>
@@ -102,6 +115,7 @@
                   :data-field="field"
                   :placeholder="placeholder(field)"
                   @keydown="onKeydown"
+                  @paste="onPaste($event, row, field)"
                 />
               </td>
             </tr>
@@ -109,6 +123,29 @@
         </table>
       </div>
     </template>
+
+    <cdx-dialog
+      v-model:open="showImport"
+      :title="t('csv-import')"
+      :use-close-button="true"
+      :primary-action="{
+        label: t('csv-apply'),
+        actionType: 'progressive',
+        disabled: !importText.trim(),
+      }"
+      @primary="onImport"
+    >
+      <p>{{ t("csv-import-help") }}</p>
+      <p>
+        <code>{{ ["file", ...FIELDS].join(", ") }}</code>
+      </p>
+      <cdx-text-area
+        v-model="importText"
+        class="df-import"
+        :placeholder="exampleCsv"
+        rows="10"
+      />
+    </cdx-dialog>
 
     <cdx-dialog
       :open="!!preview"
@@ -124,7 +161,7 @@
 
 <script setup lang="ts">
 import { computed, ref, shallowRef } from "vue";
-import { useObjectUrl } from "@vueuse/core";
+import { useClipboard, useObjectUrl } from "@vueuse/core";
 import {
   CdxButton,
   CdxCheckbox,
@@ -132,10 +169,18 @@ import {
   CdxDialog,
   CdxField,
   CdxIcon,
+  CdxTextArea,
   CdxTextInput,
   CdxToggleSwitch,
 } from "@wikimedia/codex";
-import { cdxIconArrowDown } from "@wikimedia/codex-icons";
+import { useToast } from "@wikimedia/codex";
+import {
+  cdxIconArrowDown,
+  cdxIconCopy,
+  cdxIconDownload,
+  cdxIconPaste,
+} from "@wikimedia/codex-icons";
+import { readTable, writeTable, type Table } from "../csv";
 import { t } from "../i18n";
 import { useAuth } from "../auth";
 import { DEFAULT_FIELDS, FIELDS, LICENSES, type Field } from "../meta";
@@ -144,7 +189,8 @@ import { usePhotos, type Photo } from "../store";
 import { ownWorkAuthor } from "../wikitext";
 import PhotoThumb from "./PhotoThumb.vue";
 
-const { newPhotos, defaults, metaOf } = usePhotos();
+const { directory, newPhotos, defaults, metaOf, applyTable } = usePhotos();
+const toast = useToast();
 const { username } = useAuth();
 
 const moreColumns = ref(false);
@@ -189,6 +235,59 @@ function onKeydown(event: KeyboardEvent) {
   event.preventDefault();
   next.focus();
   next.select();
+}
+
+const showImport = ref(false);
+const importText = ref("");
+const exampleCsv =
+  "file,title,description,categories\nIMG_5612.JPG,Kraków - Market Square (01),Houses in Old Town Market Square,Old Town Market Square in Kraków";
+
+function apply(table: Table, startRow = 0) {
+  const { updated, unmatched, undo } = applyTable(table, startRow);
+  let message = t("csv-applied", updated);
+  if (unmatched) message += " " + t("csv-unmatched", unmatched);
+  if (table.unknown.length)
+    message += " " + t("csv-unknown", table.unknown.join(", "));
+  toast[unmatched || table.unknown.length ? "warning" : "success"](message, {
+    actionButton: { label: t("undo"), onClick: undo },
+  });
+}
+
+function onImport() {
+  apply(readTable(importText.value));
+  showImport.value = false;
+  importText.value = "";
+}
+
+/** Multiple cells from a spreadsheet fill the table from this cell on. */
+function onPaste(event: ClipboardEvent, row: number, field: Field) {
+  const text = event.clipboardData?.getData("text/plain") ?? "";
+  if (!/[\t\n]/.test(text.trim())) return;
+  event.preventDefault();
+  apply(readTable(text, field), row);
+}
+
+const tableText = (delimiter: string) =>
+  writeTable(
+    newPhotos.value.map((photo) => ({ path: photo.path, meta: metaOf(photo) })),
+    delimiter,
+  );
+
+const { copy } = useClipboard({ legacy: true });
+async function copyTable() {
+  // tab-separated: pastes into spreadsheet cells
+  await copy(tableText("\t"));
+  toast.success(t("csv-copied", newPhotos.value.length));
+}
+
+function downloadCsv() {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(
+    new Blob([tableText(",")], { type: "text/csv" }),
+  );
+  a.download = `${directory.value?.name ?? "dinofoto"}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 const preview = shallowRef<Photo>();
@@ -283,6 +382,11 @@ const previewUrl = useObjectUrl(computed(() => preview.value?.file));
 }
 .df-skipped td {
   opacity: 0.5;
+}
+.df-import :deep(textarea) {
+  font-family: var(--font-family-monospace);
+  font-size: var(--font-size-small);
+  white-space: pre;
 }
 .df-preview-button {
   padding: 0;
