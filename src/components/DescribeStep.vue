@@ -227,6 +227,12 @@
       <p>
         <code>{{ ["file", ...FIELDS].join(", ") }}</code>
       </p>
+      <p>
+        <cdx-button size="small" @click="downloadCsv">
+          <cdx-icon :icon="cdxIconDownload" size="small" />
+          {{ t("csv-template") }}
+        </cdx-button>
+      </p>
       <cdx-text-area
         v-model="importText"
         class="df-import"

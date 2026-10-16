@@ -174,5 +174,6 @@
   "property-P9149": "Coordinates of depicted place",
   "describe-show-photo": "Show photo while editing",
   "upload-download-kml": "Download KML",
-  "upload-show-map": "Show on a map"
+  "upload-show-map": "Show on a map",
+  "csv-template": "Download the table as template"
 }

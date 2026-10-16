@@ -52,8 +52,6 @@ Out of scope (Commons itself): search (●3), map search, MediaViewer speed (●
 - **Template choice** (S): `{{Photograph}}` or `{{Artwork}}` instead of `{{Information}}`; an “other information” wikitext column.
 - **Multilingual descriptions** (M, UploadWizard): one column per language instead of language templates.
 - **Category suggestions from history** (S, UploadWizard): recently used categories first.
-- **Unit tests for the store** (S): `applyTable`, title checks, presets.
-- **Downloadable CSV template** (S) and the CSV format in the README.
 
 ## Structured data
 
@@ -71,4 +69,4 @@ Out of scope (Commons itself): search (●3), map search, MediaViewer speed (●
 
 ## Done
 
-URL prefill. KML export and map of the uploaded batch. Photo of the row being edited. Labels of Wikidata items. Object location. Titles, descriptions and keyword categories from EXIF/IPTC/XMP. Title blacklist, protected titles and UploadWizard’s title rules. Chunked and asynchronous upload, stashing first to show server warnings (incl. deleted duplicates). Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.
+Store tests, CSV template and format documentation. URL prefill. KML export and map of the uploaded batch. Photo of the row being edited. Labels of Wikidata items. Object location. Titles, descriptions and keyword categories from EXIF/IPTC/XMP. Title blacklist, protected titles and UploadWizard’s title rules. Chunked and asynchronous upload, stashing first to show server warnings (incl. deleted duplicates). Test mode (Test Commons, Test Wikipedia), file name patterns, category suggestions (search and nearby) and nonexistent-category warnings, captions in several languages, depicts, structured data derived from the table (inception, point of view and heading, license, copyright status, own work and creator), edit selected rows, presets, MediaInfo IDs, gallery and QuickStatements export after uploading.
