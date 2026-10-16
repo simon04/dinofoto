@@ -2,7 +2,25 @@
 
 Feature ideas for DinoFoto, collected from the role models [Pattypan](https://commons.wikimedia.org/wiki/Commons:Pattypan) and [VicuñaUploader](https://commons.wikimedia.org/wiki/Commons:Vicu%C3%B1aUploader), the [structured data GLAM tools](https://commons.wikimedia.org/wiki/Commons:Structured_data/GLAM/Tools) (OpenRefine, QuickStatements, Minefield, AC/DC, Cat2Data, ISA, Depictor, WikiCrowd, WCQS) and [UploadWizard](https://www.mediawiki.org/wiki/Extension:UploadWizard).
 
+Also from a community wishlist (workshop, “What bothers you technically on Commons?”); votes as (●n).
+
 Effort: **S** small (hours), **M** medium (a day or two), **L** large.
+
+## From the community wishlist
+
+- **Edit existing files** (M/L, ●7 “table view with date, categories … without opening each file”): load a category or your uploads into the same table, edit categories, captions and statements, save in one go.
+- **Sort categories by date taken** (S, ●4): option to add a date sort key (`{{DEFAULTSORT:2024-05-01 12:00}}` or per category), so category pages list photos chronologically.
+- **Geotag from GPX** (M, ●1 “import gpx, kml”): match capture times to a GPX track (with camera clock offset); export the batch as KML/GPX.
+- **Extra templates** (S, ●1 “personality rights every time”): a column and default for additional templates, e.g. `{{Personality rights}}`, kept in presets.
+- **Descriptions from EXIF/IPTC/XMP** (S): prefill description, title and keywords; keywords as category suggestions.
+- **Create missing categories** (M, ●3 “find and create categories automatically”): with a parent category and optionally a Wikidata infobox.
+- **Pages from templates** (M, ●5 “standardized pages from templates, e.g. galleries”): create a gallery or category page for the batch.
+- **Image-error warnings** (M, ●1, ●2 “mini image editing”): low resolution, blur, near-duplicates in the review; rotate and crop before upload.
+- **AI suggestions** (L, ●1): depicts and captions suggested by image recognition, to be confirmed; photos would leave the browser.
+- **Video** (L, ●2 “no MP4 upload”, ●4 “video editing”): convert MP4 to WebM in the browser (WebCodecs/ffmpeg.wasm), optionally trimmed; needs chunked upload.
+- **One tool for everything** (M, ●2): UploadWizard campaigns and URL prefill (below), so DinoFoto replaces more tools.
+
+Out of scope (Commons itself): search (●3), map search, MediaViewer speed (●2), video player, decluttered UI (●4), category pages and sorting by quality, links from wikis to Commons (●3), embedding in wikis (●2), crop tool, RAW converter, replacing categories by structured data (●5, a community decision; DinoFoto derives both from one input).
 
 ## Uploading
 
@@ -49,12 +67,12 @@ Effort: **S** small (hours), **M** medium (a day or two), **L** large.
 ## Structured data
 
 - **Depicts from categories** (M, Cat2Data, AC/DC): the Wikidata item of a category (via its infobox or P373) as depicts suggestion.
-- **Depicts from location** (M, WCQS): Wikidata items near the photo (`wikibase:around`) as suggestions.
+- **Depicts from location** (M, WCQS; ●2 “category/SD suggestions via coordinates”): Wikidata items near the photo (`wikibase:around`) as suggestions.
 - **Wikidata reconciliation for pasted text** (M, OpenRefine): match pasted names to items, confirm candidates.
 - **Quick yes/no for suggested depicts** (M, WikiCrowd, Depictor): card view with thumbnail and suggestion.
 - **Enrich files already on Commons** (M, ISA, SDC tool): for photos skipped as duplicates, show and add missing captions and statements.
 - **Default statements in presets** (S, OpenRefine schemas): e.g. creator as own Wikidata item, or a fixed depicts.
-- **Batch verification links** (S, Media Search, WCQS): `haswbstatement:`/`incategory:` search and a WCQS map of the batch.
+- **Batch verification links** (S, Media Search, WCQS; ●3 “evaluate structured data”, ●2 “list of all files with statement XYZ”): `haswbstatement:`/`incategory:` search and a WCQS map of the batch.
 - **Show labels of depicted items** (S): fetch labels for the Q-IDs in the table and review.
 
 ## Campaigns
