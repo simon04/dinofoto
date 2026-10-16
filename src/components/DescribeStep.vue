@@ -42,8 +42,8 @@
           <cdx-icon :icon="cdxIconDownload" />
           {{ t("csv-download") }}
         </cdx-button>
-        <span class="df-hint">{{ t("describe-keys") }}</span>
       </div>
+      <p class="df-hint">{{ t("describe-keys") }}</p>
 
       <div class="df-scroll">
         <table class="df-table df-sheet">
@@ -297,28 +297,32 @@ const previewUrl = useObjectUrl(computed(() => preview.value?.file));
 <style scoped>
 .df-defaults {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  gap: 0 1rem;
-  border: 1px solid var(--border-color-subtle);
+  grid-template-columns: repeat(auto-fill, minmax(var(--size-1600), 1fr));
+  gap: var(--spacing-100) var(--spacing-150);
+  border: var(--border-width-base) solid var(--border-color-subtle);
   border-radius: var(--border-radius-base);
-  margin: 0 0 1rem;
-  padding: 0.5rem 1rem 1rem;
+  margin: 0 0 var(--spacing-150);
+  padding: var(--spacing-75) var(--spacing-150) var(--spacing-150);
 }
 .df-defaults legend {
-  font-weight: bold;
+  padding: 0 var(--spacing-50);
+  font-weight: var(--font-weight-bold);
 }
+/* the grid gap separates the fields */
 .df-defaults :deep(.cdx-field) {
-  margin-top: 0.5rem;
+  margin-top: 0;
 }
 .df-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
+  gap: var(--spacing-75);
+  margin-bottom: var(--spacing-50);
 }
 .df-hint {
+  margin: 0 0 var(--spacing-100);
   color: var(--color-subtle);
+  font-size: var(--font-size-small);
 }
 .df-scroll {
   overflow: auto;
@@ -327,18 +331,21 @@ const previewUrl = useObjectUrl(computed(() => preview.value?.file));
 .df-th {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--spacing-25);
   white-space: nowrap;
 }
+.df-sheet th {
+  padding: var(--spacing-25) var(--spacing-35);
+}
 .df-sheet td {
-  padding: 0.125rem 0.25rem;
+  padding: var(--spacing-35);
 }
 .df-sheet input {
   width: 100%;
   box-sizing: border-box;
-  min-height: 2rem;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--border-color-subtle);
+  min-height: var(--size-200);
+  padding: var(--spacing-25) var(--spacing-50);
+  border: var(--border-width-base) solid var(--border-color-subtle);
   border-radius: var(--border-radius-base);
   background: var(--background-color-base);
   color: var(--color-base);
@@ -347,7 +354,8 @@ const previewUrl = useObjectUrl(computed(() => preview.value?.file));
 .df-sheet input:focus {
   outline: none;
   border-color: var(--border-color-progressive--focus);
-  box-shadow: inset 0 0 0 1px var(--box-shadow-color-progressive--focus);
+  box-shadow: inset 0 0 0 var(--border-width-base)
+    var(--box-shadow-color-progressive--focus);
 }
 .df-sheet input::placeholder {
   color: var(--color-placeholder);
@@ -375,7 +383,7 @@ const previewUrl = useObjectUrl(computed(() => preview.value?.file));
 .df-title-cell {
   display: flex;
   align-items: center;
-  gap: 0.125rem;
+  gap: var(--spacing-25);
 }
 .df-ext {
   color: var(--color-subtle);
