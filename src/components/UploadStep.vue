@@ -60,7 +60,7 @@
           :class="`df-${stateOf(item).state}`"
         >
           <td><PhotoThumb :file="item.photo.file" /></td>
-          <td>
+          <td class="df-name">
             <a
               v-if="stateOf(item).state === 'done'"
               :href="fileUrl(item.title)"
@@ -180,16 +180,22 @@ async function onLogin() {
 </script>
 
 <style scoped>
+.cdx-message {
+  margin-bottom: var(--spacing-150);
+}
+.cdx-message .cdx-button {
+  margin-inline-start: var(--spacing-75);
+}
 .df-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 1rem;
-  margin: 0.75rem 0;
+  gap: var(--spacing-100);
+  margin-bottom: var(--spacing-150);
 }
 .df-comment {
   flex: 1;
-  max-width: 40rem;
+  max-width: var(--size-4000);
 }
 .df-comment :deep(.cdx-field__control) {
   margin: 0;
@@ -198,22 +204,33 @@ async function onLogin() {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--spacing-50);
+  margin-bottom: var(--spacing-75);
 }
 .df-progress {
+  display: block;
   width: 100%;
-  margin: 0.5rem 0 1rem;
+  margin: 0 0 var(--spacing-150);
   accent-color: var(--background-color-progressive);
 }
 .df-uploads {
   width: 100%;
 }
+.df-name {
+  min-width: var(--size-1600);
+}
 .df-path {
+  margin-top: var(--spacing-25);
   color: var(--color-subtle);
   font-size: var(--font-size-small);
 }
+/* takes the remaining width, so the other columns stay compact */
 .df-message {
+  width: 100%;
   overflow-wrap: anywhere;
+}
+.df-message .cdx-button {
+  margin-inline-start: var(--spacing-50);
 }
 .df-uploading {
   background: var(--background-color-progressive-subtle);
