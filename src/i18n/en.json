@@ -167,5 +167,6 @@
   "warning-empty-file": "The file is empty.",
   "problem-title-short": "The file name is shorter than 5 characters.",
   "problem-title-protected": "This file name is protected against uploads.",
-  "problem-title-blacklisted": "The file name is not allowed: $1"
+  "problem-title-blacklisted": "The file name is not allowed: $1",
+  "categories-keyword": "keyword"
 }

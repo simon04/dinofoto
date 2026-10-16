@@ -136,10 +136,13 @@ export const usePhotos = createGlobalState(() => {
   async function initMeta(photo: Photo, sha1: string) {
     if (meta.value[sha1]) return;
     const name = photo.path.split("/").pop()!;
+    const { title, ...exif } = await readExif(photo.file);
     meta.value[sha1] = {
       ...emptyMeta(),
-      title: name.slice(0, name.lastIndexOf(".")).replace(/_/g, " ").trim(),
-      ...(await readExif(photo.file)),
+      ...exif,
+      // a title from the metadata, else the file name
+      title:
+        title || name.slice(0, name.lastIndexOf(".")).replace(/_/g, " ").trim(),
     };
   }
 

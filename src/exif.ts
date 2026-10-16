@@ -12,22 +12,55 @@ export function formatDate(date: Date): string {
 const round = (n: number, digits: number) => String(+n.toFixed(digits));
 
 /** Date taken, location and camera heading from EXIF. */
-export async function readExif(
-  file: File,
-): Promise<Pick<Meta, "date" | "latitude" | "longitude" | "heading">> {
+/** Text of an XMP/IPTC value: plain, language alternatives or a list. */
+function text(value: unknown): string {
+  if (typeof value === "string") return value.trim();
+  if (Array.isArray(value)) return text(value[0]);
+  if (value && typeof value === "object" && "value" in value)
+    return text((value as { value: unknown }).value);
+  return "";
+}
+
+/** Descriptions cameras write by themselves, e.g. `OLYMPUS DIGITAL CAMERA`. */
+const CAMERA_TEXT =
+  /^(OLYMPUS DIGITAL CAMERA|SONY DSC|DIGITAL CAMERA|KODAK.*CAMERA|Default|Untitled|Screenshot|DCIM.*|[A-Z0-9_ -]*(DSC|IMG|CAMERA)[A-Z0-9_ -]*)$/i;
+const useful = (value: string) =>
+  value && !CAMERA_TEXT.test(value) ? value : "";
+
+/** Metadata of a photo from EXIF, IPTC and XMP. */
+export interface PhotoMetadata extends Pick<
+  Meta,
+  "date" | "latitude" | "longitude" | "heading"
+> {
+  /** title (IPTC object name, XMP `dc:title`) */
+  title: string;
+  /** description (XMP `dc:description`, IPTC caption, EXIF) */
+  description: string;
+  /** keywords (IPTC, XMP `dc:subject`) */
+  keywords: string[];
+}
+
+export async function readExif(file: File): Promise<PhotoMetadata> {
   const exif: {
     DateTimeOriginal?: Date;
     CreateDate?: Date;
     latitude?: number;
     longitude?: number;
     GPSImgDirection?: number;
+    ImageDescription?: unknown;
+    ObjectName?: unknown;
+    Caption?: unknown;
+    Keywords?: unknown;
+    title?: unknown;
+    description?: unknown;
+    subject?: unknown;
   } =
     (await exifr
       .parse(file, {
         gps: true,
-        xmp: false,
+        xmp: true,
+        iptc: true,
         icc: false,
-        iptc: false,
         interop: false,
         ifd1: false,
       })
@@ -35,6 +68,10 @@ export async function readExif(
   const date = exif.DateTimeOriginal ?? exif.CreateDate;
   const located =
     Number.isFinite(exif.latitude) && Number.isFinite(exif.longitude);
+  const keywords = [exif.Keywords, exif.subject]
+    .flatMap((k) => (Array.isArray(k) ? k : k ? [k] : []))
+    .map(text)
+    .filter(Boolean);
   return {
     date: date instanceof Date && !isNaN(+date) ? formatDate(date) : "",
     latitude: located ? round(exif.latitude!, 6) : "",
@@ -43,5 +80,12 @@ export async function readExif(
       located && Number.isFinite(exif.GPSImgDirection)
         ? round(exif.GPSImgDirection!, 1)
         : "",
+    title: useful(text(exif.title) || text(exif.ObjectName)),
+    description: useful(
+      text(exif.description) ||
+        text(exif.Caption) ||
+        text(exif.ImageDescription),
+    ),
+    keywords: [...new Set(keywords)],
   };
 }

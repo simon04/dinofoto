@@ -355,7 +355,7 @@ function onKeydown(event: KeyboardEvent) {
 const { options: categoryOptions, suggest } = useCategorySuggestions();
 function suggestFor(photo: Photo) {
   const m = metaOf(photo);
-  suggest(m.categories, m.latitude, m.longitude);
+  suggest(m.categories, m.latitude, m.longitude, m.keywords);
 }
 
 const { options: itemOptions, suggest: suggestItems } = useItemSuggestions();

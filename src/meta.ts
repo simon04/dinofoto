@@ -19,9 +19,11 @@ export interface Meta {
   license: string;
   /** excluded from the upload */
   skip?: boolean;
+  /** keywords from the photo (IPTC, XMP), for category suggestions */
+  keywords?: string[];
 }
 
-export type Field = Exclude<keyof Meta, "skip">;
+export type Field = Exclude<keyof Meta, "skip" | "keywords">;
 
 /** Columns in table and CSV order. */
 export const FIELDS: Field[] = [
